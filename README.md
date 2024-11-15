@@ -65,6 +65,8 @@ Pas de boutique en ligne (incompatible avec le statut ASBL).
 Réservations principalement les mercredis et week-ends, horaires flexibles selon la météo.
 Informations de contact :
 
+facebbok: https://www.facebook.com/asblcrepuscule
+
 Email : claudelheh@gmail.com
 Téléphone : 0460 565 420
 Facebook : Lien disponible sur le site pour consulter photos et informations récentes.
