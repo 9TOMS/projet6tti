@@ -8,7 +8,7 @@
 <body>
 <div id ="tete">
     <div id ="logo">
-        <img id ="logo1" src="logo.png">
+        <img id ="logo1" src="images/logo.png">
     </div>
     <div id = "centre">
         <div id = "nom">
@@ -19,7 +19,7 @@
         </div>
     </div>
     <div id = "inscription">
-        <img id = "inscription1" src="profil.png"/>
+        <img id = "inscription1" src="images/profil.png"/>
     </div>
 </div>  
     
