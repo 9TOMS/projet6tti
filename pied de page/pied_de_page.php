@@ -5,7 +5,7 @@
                 •
             <a href="Mentions légales.php">Mentions légales </a>
                 •
-            <a href="contacte.php">contacte</a>
+            <a href="contacte.php">contact</a>
     </div>
     <div class="droit_div_pied_de_page">
         |
