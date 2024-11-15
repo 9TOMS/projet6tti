@@ -1,5 +1,5 @@
 <link rel="stylesheet" href="menu.css">
-<ull id="menu">
+<ul id="menu">
 <li><a href="page2.html">Accueille </a></li>
 <li><a href="News.php">News </a></li>
 <li><a href="photo.php">Photos </a></li>
