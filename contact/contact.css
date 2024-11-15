@@ -1,1 +1,43 @@
-
+#corps
+{
+    display: flex;
+}
+#contact
+{
+    width: 100%;
+}
+#MethodeDeContact
+{
+    display: flex;
+}
+h1
+{
+    text-align: center;
+}
+#telephone
+{
+    flex: 1;
+}
+#ImageTelephone
+{
+    width: 100px;
+    height: 100px;
+}
+#mail
+{
+    flex: 1;
+}
+#ImageMail
+{
+    width: 100px;
+    height: 100px;
+}
+#facebook
+{
+    flex: 1;
+}
+#ImageFacebook
+{
+    width: 100px;
+    height: 100px;
+}
