@@ -1,16 +1,17 @@
-#body {
+body {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
-    background-image: url(FondMenu.jpg);
+    background-image: url(MenuFond.png);
     background-size: cover; 
-    background-attachment: fixed; 
+    background-attachment: fixed;
 }
 
 .Contenu {
     display: flex;
     flex-direction: row;
-    margin-top: 10px;  
+    margin-top: 10px;
+    height: 750px;
 }
 
 .publication {
@@ -22,7 +23,6 @@
 }
 
 .autres {
-    margin-top: 15px;
     width: 20%;
     box-sizing: border-box;
     height: 100%;
@@ -31,8 +31,6 @@
 
 .activites, .contact {
     background-color: rgba(200, 246, 217, 0.75); 
-    padding: 15px;
-    border-radius: 10px; 
-    margin-bottom: 10px; 
+    border-radius: 5px; 
+    height: 50%; 
 }
-
