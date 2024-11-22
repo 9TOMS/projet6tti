@@ -1,1 +1,18 @@
-
+body
+{
+    background-image: url(images/MenuFond.png) ;
+    background-size: cover; 
+    background-attachment: fixed;
+}
+#corps
+{
+    display: flex;
+}
+#agenda
+{
+    width:70%;
+    background-color: rgba(200, 246, 217, 0.75);
+    border-radius: 25px;
+    height: 500px;
+    margin: 1%;
+}
