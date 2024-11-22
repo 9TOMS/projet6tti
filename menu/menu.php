@@ -1,6 +1,6 @@
 <link rel="stylesheet" href="menu.css">
 <ul id="menu">
-<li><a href="page2.html">Accueil </a></li>
+<li><a href="index.php">Accueil </a></li>
 <li><a href="News.php">News </a></li>
 <li><a href="photo.php">Photos </a></li>
 <li><a href="contact.php">Contact </a></li>
