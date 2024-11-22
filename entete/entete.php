@@ -15,7 +15,12 @@
             <h1>Crépuscule</h1>
         </div>
         <div id = "citation">
-            <h2>Echange,respect<h2>
+            <h2>
+                Echange,
+                <span class="tooltip">respect
+                    <span class="tooltip-text">Respect des autres membres du club, des moniteurs et responsables, des consignes, du matériel et des infrastructures mais aussi et surtout des chevaux.</span>
+                </span>
+                 <h2>
         </div>
     </div>
     <div id = "inscription">
