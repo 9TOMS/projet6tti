@@ -1,1 +1,53 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-image: url(MenuFond.png);
+    background-size: cover; 
+    background-attachment: fixed; 
+}
 
+.contenu {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+.colonne {
+    width: 25%;
+    padding: 15px;
+    border-radius: 5px;
+    background-color: rgba(200, 246, 217, 0.8); 
+}
+
+.colonne h2 {
+    text-align: center;
+}
+
+.stage {
+    padding: 10px;
+    margin: 10px 0;
+    cursor: pointer;
+    text-align: center;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.stage:hover {
+    background-color: #d0d0d0;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+form label {
+    margin-top: 10px;
+}
+
+form input, form button {
+    margin-top: 5px;
+    padding: 10px;
+    font-size: 16px;
+}
