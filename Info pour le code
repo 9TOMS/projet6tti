@@ -1,1 +1,3 @@
-Couleur fond Vert : #c8f6d9
+    --vert:rgba(200, 246, 217, 0.75);
+    --bleu:rgb(222,238,255,0.75);
+    --noir:rgb(56, 55, 55);
