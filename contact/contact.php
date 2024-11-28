@@ -14,14 +14,14 @@
     <div id="contact">
         <h1>Contactez nous<h1>
         <div id="MethodeDeContact">
-            <a id="telephone" href="tel:+0476 94 93 60"> 
+            <a target="_blank" id="telephone" href="tel:+0476 94 93 60"> 
                 <img id ="ImageTelephone" src="images/gsm.png">
                 <br>
                 <h2>Par téléphone</h2>
                 <br>
                 <p>0476 94 93 60</p>
             </a>
-            <a id="mail" href="mailto:crepusculeasbl@gmail.com">
+            <a target="_blank" id="mail" href="mailto:crepusculeasbl@gmail.com">
                 <img id ="ImageMail" src="images/mail.PNG">
 
                 <br>
@@ -29,7 +29,7 @@
                 <br>
                 <p>crepusculeasbl@gmail.com</p>
             </a>
-            <a id="facebook" href="https://www.facebook.com/asblcrepuscule">
+            <a target="_blank" id="facebook" href="https://www.facebook.com/asblcrepuscule">
                 <img id ="ImageFacebook" src="images/facebook.png" >
                 <br>
                 <h2>Par facebook</h2>
