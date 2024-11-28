@@ -14,13 +14,21 @@
         <div id = "nom">
             <h1>Crépuscule</h1>
         </div>
-        <div id = "citation">
+         <div id = "citation">
             <h2>
-                Echange,
-                <span class="tooltip">respect
-                    <span class="tooltip-text">Respect des autres membres du club, des moniteurs et responsables, des consignes, du matériel et des infrastructures mais aussi et surtout des chevaux.</span>
+            <span class="survole">Respect,
+                    <span class="moment-survole">Respect des autres membres du club, des moniteurs et responsables, des consignes, du matériel et des infrastructures mais aussi et surtout des chevaux.</span>
                 </span>
-                 <h2>
+                <span class="survole">Confiance,
+                    <span class="moment-survole">Oser essayer augmenter sa confiance en soi. Le cheval vous fera alors confiance car il est comme votre reflet dans un miroir.</span>
+                </span>
+                <span class="survole">Solidarité,
+                    <span class="moment-survole">Entraide partage échange de ses compétences et savoirs pour aider les autres.</span>
+                </span>
+                <span class="survole">Sécurité,
+                    <span class="moment-survole">Prendre du plaisir dans les activités tout en respectant.</span>
+                </span>
+            </h2>
         </div>
     </div>
     <div id = "inscription">
