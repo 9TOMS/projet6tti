@@ -15,13 +15,21 @@
         <?php include("menu.php"); ?>
 
         <!-- Colonne des stages -->
-        <div class="colonne stages">
+        <div class="colonnestages">
             <h2>Formulaires Stages</h2>
             
             <div class="carousel">
                 <div class="carousel-items">
-                    <div class="carousel-item" style="background-color: lightcoral;">Stage 1
+                    <div class="carousel-item" style="background-color: lightcoral;">
                         <form id="form-stage1">
+                            <h2>Stage 1</h2>
+                            <br>
+                            <p>Description :
+                            <br>Age requis:
+                            <br>Dates:
+                            <br>Activités prevues :
+                            <br>
+                            </p>
                             <label for="nom">Nom :</label>
                             <input type="text" id="nom" name="nom" required>
                             <label for="prenom">Prénom :</label>
@@ -33,7 +41,7 @@
                             <button type="submit">S'inscrire</button>
                         </form>
                     </div>
-                    <div class="carousel-item" style="background-color: lightseagreen;">Stage 2
+                    <div class="carousel-item" style="background-color: lightseagreen;">
                         <form id="form-stage2">
                             <label for="nom">Nom :</label>
                             <input type="text" id="nom" name="nom" required>
@@ -46,7 +54,7 @@
                             <button type="submit">S'inscrire</button>
                         </form>
                     </div>
-                    <div class="carousel-item" style="background-color: lightblue;">Stage 3
+                    <div class="carousel-item" style="background-color: lightblue;">
                         <form id="form-stage3">
                             <label for="nom">Nom :</label>
                             <input type="text" id="nom" name="nom" required>
@@ -69,7 +77,7 @@
 
         </div>
         <!-- Colonne formulaire des cours -->
-        <div class="colonne cours">
+        <div class="colonnecours">
             <h2>Formulaire d'inscription - Cours</h2>
             <form id="form-cours">
                 <label for="nom">Nom :</label>
@@ -85,7 +93,7 @@
         </div>
 
         <!-- Colonne formulaire des balades -->
-        <div class="colonne balades">
+        <div class="colonnebalades">
             <h2>Formulaire d'inscription - Balades</h2>
             <form id="form-balades">
                 <label for="nom-balade">Nom :</label>
