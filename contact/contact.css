@@ -1,3 +1,8 @@
+body {
+    background-image: url(images/MenuFond.png);
+    background-size: cover; 
+    background-attachment: fixed; 
+}
 #corps
 {
     display: flex;
@@ -14,30 +19,49 @@ h1
 {
     text-align: center;
 }
+p
+{
+    font-size: 25px;
+}
 #telephone
 {
     flex: 1;
+    background-color:rgba(200, 246, 217, 0.75);
+    margin: 5px;
+    border-radius: 10px;
 }
 #ImageTelephone
 {
-    width: 100px;
-    height: 100px;
+    width: 150px;
+    height: 150px;
 }
 #mail
 {
     flex: 1;
+    background-color:rgba(200, 246, 217, 0.75);
+    margin: 5px;
+    border-radius: 10px;
 }
 #ImageMail
 {
-    width: 100px;
-    height: 100px;
+    width: 200px;
+    height: 150px;
 }
 #facebook
 {
     flex: 1;
+    background-color:rgba(200, 246, 217, 0.75);
+    margin: 5px;
+    border-radius: 10px;
 }
 #ImageFacebook
 {
-    width: 100px;
-    height: 100px;
+    width: 150px;
+    height: 150px;
+}
+#localisation 
+{
+    background-color:rgba(200, 246, 217, 0.75);
+    margin: 5px;
+    border-radius: 10px;
 }
