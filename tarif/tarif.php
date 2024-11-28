@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="tarif.css">
-    <script defer src="script.js"></script>
+    <script defer src="tarif.js"></script>
     <title>Accueil</title>
 </head>
 <body>
@@ -16,12 +16,58 @@
 
         <!-- Colonne des stages -->
         <div class="colonne stages">
-            <h2>Stages</h2>
-            <div class="stage" data-stage="stage1">Stage 1</div>
-            <div class="stage" data-stage="stage2">Stage 2</div>
-            <div class="stage" data-stage="stage3">Stage 3</div>
-        </div>
+            <h2>Formulaires Stages</h2>
+            
+            <div class="carousel">
+                <div class="carousel-items">
+                    <div class="carousel-item" style="background-color: lightcoral;">Stage 1
+                        <form id="form-stage1">
+                            <label for="nom">Nom :</label>
+                            <input type="text" id="nom" name="nom" required>
+                            <label for="prenom">Prénom :</label>
+                            <input type="text" id="prenom" name="prenom" required>
+                            <label for="email">Email :</label>
+                            <input type="email" id="email" name="email" required>
+                            <label for="telephone">Téléphone :</label>
+                            <input type="tel" id="telephone" name="telephone" required>
+                            <button type="submit">S'inscrire</button>
+                        </form>
+                    </div>
+                    <div class="carousel-item" style="background-color: lightseagreen;">Stage 2
+                        <form id="form-stage2">
+                            <label for="nom">Nom :</label>
+                            <input type="text" id="nom" name="nom" required>
+                            <label for="prenom">Prénom :</label>
+                            <input type="text" id="prenom" name="prenom" required>
+                            <label for="email">Email :</label>
+                            <input type="email" id="email" name="email" required>
+                            <label for="telephone">Téléphone :</label>
+                            <input type="tel" id="telephone" name="telephone" required>
+                            <button type="submit">S'inscrire</button>
+                        </form>
+                    </div>
+                    <div class="carousel-item" style="background-color: lightblue;">Stage 3
+                        <form id="form-stage3">
+                            <label for="nom">Nom :</label>
+                            <input type="text" id="nom" name="nom" required>
+                            <label for="prenom">Prénom :</label>
+                            <input type="text" id="prenom" name="prenom" required>
+                            <label for="email">Email :</label>
+                            <input type="email" id="email" name="email" required>
+                            <label for="telephone">Téléphone :</label>
+                            <input type="tel" id="telephone" name="telephone" required>
+                            <button type="submit">S'inscrire</button>
+                        </form>
+                    </div>
+                </div>
+                <!-- Flèche gauche -->
+                <button class="carousel-arrow left">&lt;</button>
+                <!-- Flèche droite -->
+                <button class="carousel-arrow right">&gt;</button>
+            </div>
 
+
+        </div>
         <!-- Colonne formulaire des cours -->
         <div class="colonne cours">
             <h2>Formulaire d'inscription - Cours</h2>
@@ -58,4 +104,3 @@
     <?php include("pied_de_page.php"); ?>
 </body>
 </html>
-
