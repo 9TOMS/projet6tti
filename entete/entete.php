@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="entete.css" rel="stylesheet">
+    <script src="entete.js"></script>
 </head>
 <body>
 <div id ="tete">
@@ -32,7 +33,37 @@
         </div>
     </div>
     <div id = "inscription">
-        <img id = "inscription1" src="images/profil.png"/>
-    </div>
+        <img alt="Cliquez ici" onclick="openPopup()" id = "inscription1" src="images/profil.png"/>
+        
 </div>  
-    
+   <div id="popup" class="popup">
+        <div class="popup-content">
+            <span class="close-btn" onclick="closePopup()">&times;</span>
+            <h2>Formulaire de connexion</h2>
+            <form>
+                <div>
+                    <label for="name">Nom :</label>
+                    <input type="text" id="name" name="name" required>
+
+                    <label for="surname">Prénom :</label>
+                    <input type="text" id="surname" name="surname" required>
+                </div>
+                
+                <label for="email">Email :</label>
+                <input type="email" id="email" name="email" required>
+
+                <div>
+                    <label for="password">Mot de passe :</label>
+                    <textarea id="password" name="password" required></textarea>
+
+                    <label for="passwordverif">Vérification du Mot de passe :</label>
+                    <textarea id="passwordverif" name="passwordverif" required></textarea>
+                </div>
+                
+                
+                <button type="submit">Envoyer</button>
+            </form>
+        </div>
+    </div>
+    </div> 
+
