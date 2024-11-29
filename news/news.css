@@ -1,1 +1,122 @@
+body {
+    background-image: url(images/MenuFond.png);
+    background-size: cover;
+    background-attachment: fixed;
+    font-family: Arial, sans-serif;
+}
+
+.Contenu {
+    display: flex;
+}
+
+
+#grand_contenaire {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+/* Section de poste de news */
+.news_poste {
+    background-color: rgba(200, 246, 217, 0.75);
+    border-radius: 10px;
+    padding: 20px;
+    max-width: 600px;
+    width: 100%;
+    margin: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Section supérieure */
+.top {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* Image du poste */
+.imagenews img {
+    width: 100%;
+    height: 300px; 
+    object-fit: cover; /* Coupe et centre l'image */
+    border-radius: 10px;
+}
+
+/* Bas de la news */
+.bas {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.bas .coeur,
+.bas .partage {
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* Section des commentaires */
+.commentaire {
+    background-color: rgba(200, 246, 217, 0.75);
+    border-radius: 10px;
+    padding: 10px;
+    margin-top: 20px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* Commentaire individuel */
+.commentaire-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.commentaire-item .avatar {
+    width: 40px;
+    height: 40px;
+    background-color: #ccc;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.commentaire-item .texte {
+    flex: 1;
+    background-color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.commentaire-item .date {
+    margin-left: 10px;
+    font-size: 12px;
+    color: gray;
+}
+
+/* Champ pour écrire un commentaire */
+.ecrire-commentaire {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.ecrire-commentaire input {
+    flex: 1;
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.ecrire-commentaire button {
+    margin-left: 5px;
+    padding: 5px 10px;
+    border: none;
+    background-color: #77dd77;
+    color: white;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+}
 
