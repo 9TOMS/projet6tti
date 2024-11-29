@@ -43,6 +43,14 @@
                     </div>
                     <div class="carousel-item" style="background-color: lightseagreen;">
                         <form id="form-stage2">
+                            <h2>Stage 2</h2>
+                            <br>
+                            <p>Description :
+                            <br>Age requis:
+                            <br>Dates:
+                            <br>Activités prevues :
+                            <br>
+                            </p>
                             <label for="nom">Nom :</label>
                             <input type="text" id="nom" name="nom" required>
                             <label for="prenom">Prénom :</label>
@@ -56,6 +64,14 @@
                     </div>
                     <div class="carousel-item" style="background-color: lightblue;">
                         <form id="form-stage3">
+                            <h2>Stage 3</h2>
+                            <br>
+                            <p>Description :
+                            <br>Age requis:
+                            <br>Dates:
+                            <br>Activités prevues :
+                            <br>
+                            </p>
                             <label for="nom">Nom :</label>
                             <input type="text" id="nom" name="nom" required>
                             <label for="prenom">Prénom :</label>
