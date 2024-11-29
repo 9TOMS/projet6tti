@@ -1,4 +1,3 @@
- <div id="grand_contenaire">
         <div class="news_poste marge">
       
             <div class="top">
@@ -8,7 +7,7 @@
             
      
             <div class="imagenews">
-                <img src="images/MenuFond.png" alt="Image de news" class="image">
+                <img src="MenuFond.png" alt="Image de news" class="image">
             </div>
             
             <div class="bas">
@@ -40,4 +39,3 @@
                 </div>
             </div>
         </div>
-    </div>
