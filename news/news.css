@@ -1,5 +1,6 @@
+
 body {
-    background-image: url(images/MenuFond.png);
+    background-image: url(MenuFond.png);
     background-size: cover;
     background-attachment: fixed;
     font-family: Arial, sans-serif;
@@ -120,3 +121,65 @@ body {
     cursor: pointer;
 }
 
+/* Carrousel flèches */
+.carousel {
+    position: relative; /* Pour positionner les flèches par rapport au carrousel */
+    width: 100%;
+    max-width: 400px;
+    height: 60vh;
+    margin: 20px auto;
+    overflow: hidden;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+.carousel-items {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    width: 100%;
+    height: 100%;
+}
+
+.carousel-item {
+    min-width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+}
+
+/* Styles pour les flèches */
+.carousel-arrow {
+    top: 50%;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.carousel-arrow.left {
+    left: 10px;
+}
+
+.carousel-arrow.right {
+    right: 10px;
+}
+
+.carousel-arrow:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+}
