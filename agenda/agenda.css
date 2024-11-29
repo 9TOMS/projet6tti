@@ -3,16 +3,31 @@ body
     background-image: url(images/MenuFond.png) ;
     background-size: cover; 
     background-attachment: fixed;
+    height: auto;
 }
 #corps
 {
     display: flex;
+    height: 650px;
 }
-#agenda
-{
-    width:70%;
+#agenda {
+    width: 70%;
+    height: auto;
     background-color: rgba(200, 246, 217, 0.75);
     border-radius: 25px;
-    height: 500px;
     margin: 1%;
+    display: flex;
+    justify-content: center; /* Centre horizontalement */
+    align-items: center;    /* Centre verticalement */
 }
+
+#agenda iframe {
+    border: solid 1px #777;
+    border-radius: 15px;
+    width: 95%; /* Ajustez selon vos besoins */
+    max-width: 100%; /* Maintenir une largeur max */
+    height: 90%; /* Ajustez pour garder une marge */
+    max-height:100%; /* Respecter la hauteur max */
+}
+
+
