@@ -33,7 +33,9 @@
                             <br>Dates:
                             <br>Activités prevues :
                             <br>
+                            <br>
                             </p>
+                            <h2>Inscription</h2>
                             <label for="nom">Nom :</label>
                             <input type="text" id="nom" name="nom" required>
                             <label for="prenom">Prénom :</label>
@@ -46,7 +48,7 @@
                         </form>
                     </div>
                     <?php } ?>
-
+                </div>
                 <!-- Flèche gauche -->
                 <button class="carousel-arrow left">&lt;</button>
                 <!-- Flèche droite -->
