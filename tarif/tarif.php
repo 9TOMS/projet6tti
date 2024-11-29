@@ -20,9 +20,13 @@
             
             <div class="carousel">
                 <div class="carousel-items">
-                    <div class="carousel-item" style="background-color: lightcoral;">
-                        <form id="form-stage1">
-                            <h2>Stage 1</h2>
+                                        <?php
+                        $color=['lightcoral','lightseagreen','lightblue'];
+                        for ($i=1; $i<4; $i++){
+                    ?>
+                    <div class="carousel-item" style="background-color: <?php echo $color[$i-1];?>;">
+                        <form id="form-stage<?php echo $i;?>">
+                            <h2>Stage <?php echo $i;?></h2>
                             <br>
                             <p>Description :
                             <br>Age requis:
@@ -41,49 +45,8 @@
                             <button type="submit">S'inscrire</button>
                         </form>
                     </div>
-                    <div class="carousel-item" style="background-color: lightseagreen;">
-                        <form id="form-stage2">
-                            <h2>Stage 2</h2>
-                            <br>
-                            <p>Description :
-                            <br>Age requis:
-                            <br>Dates:
-                            <br>Activités prevues :
-                            <br>
-                            </p>
-                            <label for="nom">Nom :</label>
-                            <input type="text" id="nom" name="nom" required>
-                            <label for="prenom">Prénom :</label>
-                            <input type="text" id="prenom" name="prenom" required>
-                            <label for="email">Email :</label>
-                            <input type="email" id="email" name="email" required>
-                            <label for="telephone">Téléphone :</label>
-                            <input type="tel" id="telephone" name="telephone" required>
-                            <button type="submit">S'inscrire</button>
-                        </form>
-                    </div>
-                    <div class="carousel-item" style="background-color: lightblue;">
-                        <form id="form-stage3">
-                            <h2>Stage 3</h2>
-                            <br>
-                            <p>Description :
-                            <br>Age requis:
-                            <br>Dates:
-                            <br>Activités prevues :
-                            <br>
-                            </p>
-                            <label for="nom">Nom :</label>
-                            <input type="text" id="nom" name="nom" required>
-                            <label for="prenom">Prénom :</label>
-                            <input type="text" id="prenom" name="prenom" required>
-                            <label for="email">Email :</label>
-                            <input type="email" id="email" name="email" required>
-                            <label for="telephone">Téléphone :</label>
-                            <input type="tel" id="telephone" name="telephone" required>
-                            <button type="submit">S'inscrire</button>
-                        </form>
-                    </div>
-                </div>
+                    <?php } ?>
+
                 <!-- Flèche gauche -->
                 <button class="carousel-arrow left">&lt;</button>
                 <!-- Flèche droite -->
