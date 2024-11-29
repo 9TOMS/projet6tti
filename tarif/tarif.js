@@ -1,5 +1,5 @@
 // Sélectionner le carrousel et ses flèches
-const carouselContainer = document.querySelector('.stages .carousel-items');
+const carouselContainer = document.querySelector('.colonnestages .carousel-items');
 const leftArrow = document.querySelector('.carousel-arrow.left');
 const rightArrow = document.querySelector('.carousel-arrow.right');
 
