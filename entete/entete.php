@@ -35,35 +35,42 @@
     <div id = "inscription">
         <img alt="Cliquez ici" onclick="openPopup()" id = "inscription1" src="images/profil.png"/>
         
-</div>  
-   <div id="popup" class="popup">
-        <div class="popup-content">
-            <span class="close-btn" onclick="closePopup()">&times;</span>
-            <h2>Formulaire de connexion</h2>
-            <form>
-                <div>
-                    <label for="name">Nom :</label>
-                    <input type="text" id="name" name="name" required>
+    </div>  
+    <div id="popup" class="popup">
+    <div class="popup-content">
+        <span class="close-btn" onclick="closePopup()">&times;</span>
+        <h2 id="form-title">Formulaire d'inscription</h2>
+        <form id="popup-form">
+            <div id="name-fields">
+                <label for="name">Nom :</label>
+                <input type="text" id="name" name="name" required>
 
-                    <label for="surname">Prénom :</label>
-                    <input type="text" id="surname" name="surname" required>
-                </div>
-                
-                <label for="email">Email :</label>
-                <input type="email" id="email" name="email" required>
+                <label for="surname">Prénom :</label>
+                <input type="text" id="surname" name="surname" required>
 
-                <div>
-                    <label for="password">Mot de passe :</label>
-                    <textarea id="password" name="password" required></textarea>
+            </div>
+            
+            <label for="email">Email :</label>
+            <input type="email" id="email" name="email" required>
+            
+            <div id="info-fields">
+                <label for="phone">Numéro de téléphone :</label>
+                <input type="tel" id="phone" name="phone" required>
+            </div>
 
-                    <label for="passwordverif">Vérification du Mot de passe :</label>
-                    <textarea id="passwordverif" name="passwordverif" required></textarea>
-                </div>
-                
-                
-                <button type="submit">Envoyer</button>
-            </form>
-        </div>
+            <div id="password-fields">
+                <label for="password">Mot de passe :</label>
+                <textarea id="password" name="password" required></textarea>
+
+                <label for="passwordverif">Vérification du Mot de passe :</label>
+                <textarea id="passwordverif" name="passwordverif" required></textarea>
+            </div>
+
+            <button class="boutonpop" type="submit">Envoyer</button><br>
+            <button class="boutonpop" type="button" id="toggle-button" onclick="switchToLogin()">se connecter</button>
+        </form>
     </div>
+</div>
     </div> 
+
 
