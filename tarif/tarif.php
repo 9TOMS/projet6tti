@@ -42,8 +42,8 @@
                             <input type="text" id="prenom" name="prenom" required>
                             <label for="email">Email :</label>
                             <input type="email" id="email" name="email" required>
-                            <label for="telephone">Téléphone :</label>
-                            <input type="tel" id="telephone" name="telephone" required>
+                            <label for="nombredepersonne">Nombre de personne :</label>
+                            <input type="number" id="nombredepersonne" name="nombredepersonne" min="1" required>
                             <button type="submit">S'inscrire</button>
                         </form>
                     </div>
@@ -67,8 +67,8 @@
                 <input type="text" id="prenom" name="prenom" required>
                 <label for="email">Email :</label>
                 <input type="email" id="email" name="email" required>
-                <label for="telephone">Téléphone :</label>
-                <input type="tel" id="telephone" name="telephone" required>
+                <label for="nombredepersonne">Nombre de personne :</label>
+                <input type="number" id="nombredepersonne" name="nombredepersonne" min="1" required>
                 <button type="submit">S'inscrire</button>
             </form>
         </div>
@@ -83,8 +83,8 @@
                 <input type="text" id="prenom-balade" name="prenom" required>
                 <label for="email-balade">Email :</label>
                 <input type="email" id="email-balade" name="email" required>
-                <label for="telephone-balade">Téléphone :</label>
-                <input type="tel" id="telephone-balade" name="telephone" required>
+                <label for="nombredepersonne">Nombre de personne :</label>
+                <input type="number" id="nombredepersonne" name="nombredepersonne" min="1" required>
                 <button type="submit">S'inscrire</button>
             </form>
         </div>
@@ -93,3 +93,4 @@
     <?php include("pied_de_page.php"); ?>
 </body>
 </html>
+
