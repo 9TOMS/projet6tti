@@ -1,30 +1,25 @@
-// Sélectionner le carrousel et ses flèches
-const carouselContainer = document.querySelector('.colonnestages .carousel-items');
-const leftArrow = document.querySelector('.carousel-arrow.left');
-const rightArrow = document.querySelector('.carousel-arrow.right');
+let currentIndex = 0;
+const totalItems = 5; // Nombre total de news
 
-if (carouselContainer) {
-    let currentIndex = 0;
-
-    function updateCarousel() {
-        const totalItems = carouselContainer.children.length;
-        const offset = -currentIndex * 100;
-        carouselContainer.style.transform = `translateX(${offset}%)`;
-    }
-
-    function showNextSlide() {
-        const totalItems = carouselContainer.children.length;
-        currentIndex = (currentIndex + 1) % totalItems;
-        updateCarousel();
-    }
-
-    function showPreviousSlide() {
-        const totalItems = carouselContainer.children.length;
-        currentIndex = (currentIndex - 1 + totalItems) % totalItems;
-        updateCarousel();
-    }
-
-    // Naviguer avec les flèches
-    rightArrow.addEventListener('click', showNextSlide);
-    leftArrow.addEventListener('click', showPreviousSlide);
+function Slide(index) {
+    const carouselItems = document.querySelector('.carousel-items');
+    const offset = -index * (50); // Décalage en pourcentage
+    carouselItems.style.transform = `translateX(${offset}%)`;
 }
+
+function prochaineslide() {
+    if (currentIndex < totalItems-2) {
+        currentIndex++;
+        Slide(currentIndex);
+    }
+}
+
+function precedenteslide() {
+    if (currentIndex > 0) {
+        currentIndex--;
+        Slide(currentIndex);
+    }
+}
+
+// Initialisation
+Slide(currentIndex);
