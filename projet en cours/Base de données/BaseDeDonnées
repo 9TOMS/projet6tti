@@ -1,1 +1,44 @@
+MEMBRE :						
+
+ID_MEMBRE (clé primaire)
+NOM (string)
+PRENOM (string)
+NUMERO DE TELEPHONE (entier)
+E-MAIL (string)
+AGE (entier) 
+AFFILIE (Boolean)
+STAGE INSCRI (STRING) 
+PAYER OU PAS (Boolean) 
+COURS INSCRIT (STRING) 
+PAYER OU PAS (Boolean) 
+BALADE (STRING) 
+PAYER OU PAS (Boolean) 
+
+ACTIVTE :
+
+ID (clé primaire)
+TYPE (string)	
+NOMBRE D'INSCRI (entier)  
+LIEUX (STRING)  
+PRIX€ (entier) 
+DATE (date)  
+
+PHOTO :
+
+ID (clé primaire)
+CARACTERE POUR SAVOIR OU L'AFFICHER 
+NEWS :
+
+ID (clé primaire)
+REACTION (entier)
+TEXTE (STRING) 
+PHOTO  
+DATE (date)
+ID_COMMENTAIRE (entier) 
+
+COMMENATIRE :
+
+ID_NEWS (entier)
+ID_MEMBRE (entier)
+TEXTE (STRING)  
 
