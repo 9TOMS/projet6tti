@@ -34,10 +34,11 @@ REACTION (entier)
 TEXTE (STRING) 
 PHOTO  
 DATE (date)
-ID_COMMENTAIRE (entier) 
+ID_COM(entier) 
 
-COMMENATIRE :
+COMM :
 
+ID_COM (entier) 
 ID_NEWS (entier)
 ID_MEMBRE (entier)
 TEXTE (STRING)  
