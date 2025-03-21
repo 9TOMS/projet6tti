@@ -1,0 +1,11 @@
+#menu{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-direction: column;
+    height: 500px;
+    background-color:rgba(200, 246, 217, 0.75);
+    width: 10%;
+    padding-left: 5%;
+    border-radius: 10px;
+}
