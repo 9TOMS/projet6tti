@@ -1,0 +1,7 @@
+document.addEventListener("click", function (event) {
+    var conneElement = document.getElementById("pop_connection_cacher");
+    var inscrElement = document.getElementById("pop_inscrire_cacher");
+    if (conneElement.style.visibility == 'visible' && conneElement && !conneElement.contains(event.target) && inscrElement && !inscrElement.contains(event.target)) {
+        conneElement.style.visibility = "hidden";
+    }
+});
