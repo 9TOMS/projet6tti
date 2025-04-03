@@ -12,13 +12,13 @@ if (!mysqli_set_charset($bdd, "utf8")) {
 ?>
 <div class="news_poste marge">
     <div class="top">
-        <div class="gauche">Text</div>
-        <div class="droite">Date</div>
+        <div class="gauche"><?php echo($titrenews)?></div>
+        <div class="droite"><?php echo($datenews);?></div>
     </div>
     <div class="imagenews pdfnews-container calendar-container iframe-shadow">
         <?php
         // Transformation de l'URL pour l'intégration
-        $embedUrl = str_replace('/pub?', '/embed?', $imageSrc);
+        $embedUrl = str_replace('/pub?', '/embed?', $imagenews);
         ?>
         <iframe src="<?php echo htmlspecialchars($embedUrl); ?>"
                 frameborder="0" class="pdfnews" 
