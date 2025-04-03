@@ -98,13 +98,14 @@ if (!mysqli_set_charset($bdd, "utf8")) {
                     <div id="myElement" data-variable="<?php echo $nombreTotalNews; ?>"></div>
                     <?php
                     for ($i = 1; $i <= $nombreTotalNews; $i++) {
-                        $query = "SELECT Id_News, Photo_News FROM news ORDER BY Id_News";
+                        $query = "SELECT Id_News, Photo_News, Info_News, Date_News FROM news ORDER BY Id_News";
                         $result = mysqli_query($bdd, $query);
                         // Parcourir toutes les news disponibles
                         while ($row = mysqli_fetch_assoc($result)) {
                             $id = $row['Id_News'];
-                            $imageSrc = $row['Photo_News'];
-
+                            $imagenews = $row['Photo_News'];
+                            $titrenews =$row['Info_News'];
+                            $datenews =$row['Date_News'];
                             echo '<div class="news-item" id="news-' . $id . '">';
                             include("includenews.php");
                             echo '</div>';
