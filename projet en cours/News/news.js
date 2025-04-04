@@ -30,29 +30,45 @@ if (carouselContainer) {
 }
 
 currentIndex = 0;
-var totalItems = document.getElementById("myElement").dataset.variable;
+let totalItems = parseInt(document.getElementById("myElement").dataset.variable);
 
 function Slide(index) {
     const carouselItems = document.querySelector('.carousel-items');
-    const offset = -index * (50); // Décalage en pourcentage
-    carouselItems.style.transform = `translateX(${offset}%)`;
+    const carousels = Array.from(carouselItems.children);
+    const containerWidth = carousels[0].getBoundingClientRect().width+21;
+    
+    // Appliquer la transition pour le déplacement en douceur
+    carouselItems.style.transition = "transform 0.5s ease"; 
+    carouselItems.style.transform = `translateX(-${index * containerWidth}px)`;
 }
 
 function prochaineslide() {
-    if (currentIndex < totalItems - 2) {
-        currentIndex++;
-        Slide(currentIndex);
+    currentIndex++;
+    if (window.innerWidth > 900) {
+        if (currentIndex >= totalItems-1) {
+            currentIndex = 0; // Revenir à la première image
+        }
+    } else {
+        if (currentIndex >= totalItems) {
+            currentIndex = 0; // Revenir à la première image sur mobile
+        }
     }
+    Slide(currentIndex);
 }
 
 function precedenteslide() {
-    if (currentIndex > 0) {
-        currentIndex--;
-        Slide(currentIndex);
+    currentIndex--;
+    if (currentIndex < 0) {
+        if (window.innerWidth > 900) {
+            currentIndex = totalItems - 2; // Aller à la dernière image sur grand écran
+        } else {
+            currentIndex = totalItems - 1; // Aller à la dernière image sur mobile
+        }
     }
+    Slide(currentIndex);
 }
 
-// Initialisation
+// Initialiser le carousel au chargement de la page
 Slide(currentIndex);
 
 // Fonction pour ouvrir le pop-up
