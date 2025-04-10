@@ -134,7 +134,7 @@
             right: 10%;
             position: relative;
         }
-        /* Animation pour les suppressions */
+        
         .fade-out {
             opacity: 0;
             transform: scale(0.9);
