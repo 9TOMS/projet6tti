@@ -116,7 +116,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_commentaire']))
 
 <body>
     <?php include("entete.php"); ?>
-
+        
     <div class="page">
         <?php include("menu.php"); ?>
         <div id="page2">
@@ -158,7 +158,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_commentaire']))
                                     </div>
                                     <div class="bas">
                                         <div class="Likes">
-                                            <div class="coeur">❤️</div>
+                                            <div class="coeur" style="cursor:pointer;">❤️</div>
                                             <div class="compteur_likes"><?php echo htmlspecialchars($nombrelikes); ?></div>
                                         </div>
                                         <div class="partage">➤</div>
@@ -312,3 +312,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_commentaire']))
     <?php include("pied_de_page.php"); ?>
 </body>
 </html>
+
+<script> //Requete ajax likes
+   document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.coeur').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const newsItem = btn.closest('.news-item');
+            const idNews = newsItem.id.split('-')[1];
+            const compteur = newsItem.querySelector('.compteur_likes');
+
+            fetch('like.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `id_news=${idNews}`
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    compteur.textContent = data.likes;
+                    btn.classList.toggle('active', data.action === 'liked');
+                } else {
+                    alert("Erreur: " + data.error);
+                }
+            })
+            .catch(console.error);
+        });
+    });
+});
+
+</script>
