@@ -1,3 +1,122 @@
+<?php
+$connexion = mysqli_connect('localhost', 'root', '', 'crepuscule');
+
+if (!mysqli_set_charset($connexion, "utf8")) {
+    echo "Erreur lors du chargement du jeu de caractères utf8 : ", mysqli_error($connexion);
+    exit();
+}
+
+        define('PREFIX_SALT', 'ççaaaa111222333');
+        define('SUFFIX_SALT', 'ççbbbb444555666');
+        
+
+        
+
+                
+
+
+                if (isset($_POST['togglebutton1'])) {
+                    $nom = mysqli_real_escape_string($connexion, $_POST['name']);
+                    $prenom = mysqli_real_escape_string($connexion, $_POST['surname']);
+                    $age = mysqli_real_escape_string($connexion, $_POST['Age']);
+                    $parentname = mysqli_real_escape_string($connexion, $_POST['parentname']);
+                    $parentsurname = mysqli_real_escape_string($connexion, $_POST['parentsurname']);
+                    $Condition = mysqli_real_escape_string($connexion, $_POST['Condition']);
+                    $entenduparler = mysqli_real_escape_string($connexion, $_POST['entenduparler']);
+                    $mail = mysqli_real_escape_string($connexion, $_POST['email']);
+                    $phone = mysqli_real_escape_string($connexion, $_POST['phone']);
+                    $mdp = mysqli_real_escape_string($connexion, $_POST['password']);
+                    $verifmdp = mysqli_real_escape_string($connexion, $_POST['passwordverif']); 
+                    $sexe = mysqli_real_escape_string($connexion, $_POST['sexe']);
+                
+                    if ($mdp == $verifmdp) {
+                        $hashSecure = password_hash(PREFIX_SALT . $mdp . SUFFIX_SALT, PASSWORD_DEFAULT); 
+                        $insert_query = "INSERT INTO `membre`(`ID_Membre`, `Enfant`, `Nom_Membre`, `Prenom_Membre`, `Anniversaire_Membre`, `Nom_parent_Membre`, `Prenom_parent_Membre`, `Telephone_Membre`, `Mail_Membre`, `Comment_decouvert`, `Condition_Membre`, `Mot_de_passe_Membre`, `Affilie_Membre`, `administrateur`) 
+                        VALUES (NULL, TRUE, '$nom', '$prenom', '$age', '$parentname', '$parentsurname', '$phone', '$mail', '$entenduparler', '$Condition', '$hashSecure', FALSE, FALSE)";
+                        
+                        $result = mysqli_query($connexion, $insert_query);
+                        if ($result) {
+                            echo "Insertion réussie.";
+                        } else {
+                            echo "Erreur d'insertion : " . mysqli_error($connexion);
+                        }
+
+                        session_start();
+                        setcookie( 'mail', $mail, time() + 90*24*3600, null, false, true);
+                        setcookie( 'mdp', $hashSecure, time() + 90*24*3600, null, false, true);
+                    } else {
+                        echo "Les mots de passe ne correspondent pas.";
+                    }
+                }
+                if (isset($_POST['togglebutton2'])) {
+                    $nom = mysqli_real_escape_string($connexion, $_POST['name']);
+                    $prenom = mysqli_real_escape_string($connexion, $_POST['surname']);
+                    $age = mysqli_real_escape_string($connexion, $_POST['Age']);
+                    $Condition = mysqli_real_escape_string($connexion, $_POST['Condition']);
+                    $entenduparler = mysqli_real_escape_string($connexion, $_POST['entenduparler']);
+                    $mail = mysqli_real_escape_string($connexion, $_POST['email']);
+                    $phone = mysqli_real_escape_string($connexion, $_POST['phone']);
+                    $mdp = mysqli_real_escape_string($connexion, $_POST['password']);
+                    $verifmdp = mysqli_real_escape_string($connexion, $_POST['passwordverif']); 
+                    $sexe = mysqli_real_escape_string($connexion, $_POST['sexe']);
+                
+                    if ($mdp == $verifmdp) {
+                        $hashSecure = password_hash(PREFIX_SALT . $mdp . SUFFIX_SALT, PASSWORD_DEFAULT); 
+                        $insert_query = "INSERT INTO `membre`(`ID_Membre`, `Enfant`, `Nom_Membre`, `Prenom_Membre`, `Anniversaire_Membre`, `Nom_parent_Membre`, `Prenom_parent_Membre`, `Telephone_Membre`, `Mail_Membre`, `Comment_decouvert`, `Condition_Membre`, `Mot_de_passe_Membre`, `Affilie_Membre`, `administrateur`) 
+                        VALUES (NULL, TRUE, '$nom', '$prenom', '$age', NULL, NULL, '$phone', '$mail', '$entenduparler', '$Condition', '$hashSecure', FALSE, FALSE)";
+                        
+                        $result = mysqli_query($connexion, $insert_query);
+                        if ($result) {
+                            echo "Insertion réussie.";
+                        } else {
+                            echo "Erreur d'insertion : " . mysqli_error($connexion);
+                        }
+
+                        session_start();
+                        setcookie( 'mail', $mail, time() + 90*24*3600, null, false, true);
+                        setcookie( 'mdp', $hashSecure, time() + 90*24*3600, null, false, true);
+                    } else {
+                        echo "Les mots de passe ne correspondent pas.";
+                    }
+                }
+
+                if (isset($_POST['togglebutton3'])) {
+                    
+                    $mail = mysqli_real_escape_string($connexion, $_POST['email']);
+                    $mdp = mysqli_real_escape_string($connexion, $_POST['password']);
+                    $hashSecure = password_hash(PREFIX_SALT . $mdp . SUFFIX_SALT, PASSWORD_DEFAULT); 
+
+                    $select_query = "SELECT `Mail_Membre`, `Mot_de_passe_Membre` FROM `membre` WHERE `Mail_Membre` LIKE '$mail' AND `Mot_de_passe_Membre` LIKE  '$hashSecure'";
+                    $result = mysqli_query($connexion, $select_query);
+                    if ($result) {
+                        echo "Connexion réussie.";
+                        $connecte=True;
+                        session_start();
+                        setcookie( 'mail', $mail, time() + 90*24*3600, null, false, true);
+                        setcookie( 'mdp', $hashSecure, time() + 90*24*3600, null, false, true);
+                    } else {
+                        echo "Erreur de connexion : " . mysqli_error($connexion);
+                        $connecte=false;
+                    }
+                    
+                    //include 'entete2.php';
+                    //return;   
+                    
+                }
+
+                
+
+    
+
+
+        
+
+            
+            
+         
+            
+
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -39,38 +158,36 @@
     <div id="popup" class="popup">
     <div class="popup-content">
         <span class="close-btn" onclick="closePopup()">&times;</span>
-        <h2 id="form-title">Formulaire d'inscription</h2>
-        <form id="popup-form">
-            <div id="name-fields">
-                <label for="name">Nom :</label>
-                <input type="text" id="name" name="name" required>
-
-                <label for="surname">Prénom :</label>
-                <input type="text" id="surname" name="surname" required>
-
+        <h2 id="form-title">Que voulez-vous faire ?</h2>
+        <form id="popup-form" method="post">
+            <div id="info-kids-fields" >
+                    
             </div>
+            <div id="info-parents-fields" >     
+            </div>
+
+            <div id="info-person-fields" >
+                    
+            </div>
+
+
+            <div id="info-fields" >
+                
+            </div>
+
+            <div id="password-fields" >
+            </div>
+
+            <button name="" class="boutonpop" type="submit" id="toggle-button-1" onclick="inscriptionenfant()">inscrire un enfant</button> 
+            <button name="" class="boutonpop" type="submit" id="toggle-button-2" onclick="inscription()">s'inscrire</button>    
+            <button name="" class="boutonpop" type="submit" id="toggle-button-3" onclick="connexion()">se connecter</button>
             
-            <label for="email">Email :</label>
-            <input type="email" id="email" name="email" required>
-            
-            <div id="info-fields">
-                <label for="phone">Numéro de téléphone :</label>
-                <input type="tel" id="phone" name="phone" required>
-            </div>
-
-            <div id="password-fields">
-                <label for="password">Mot de passe :</label>
-                <textarea id="password" name="password" required></textarea>
-
-                <label for="passwordverif">Vérification du Mot de passe :</label>
-                <textarea id="passwordverif" name="passwordverif" required></textarea>
-            </div>
-
-            <button class="boutonpop" type="submit">Envoyer</button><br>
-            <button class="boutonpop" type="button" id="toggle-button" onclick="switchToLogin()">se connecter</button>
         </form>
     </div>
 </div>
     </div> 
+
+
+
 
 
