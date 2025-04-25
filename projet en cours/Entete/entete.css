@@ -74,7 +74,7 @@ h2
 .popup-content {
     background-color: #fff;
     padding: 20px;
-    width: 300px;
+    width: 600px;
     border-radius: 10px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     text-align: center;
@@ -120,4 +120,49 @@ form button {
 .boutonpop
 {
     margin: 5px;
+}
+
+#info-kids-fields
+{
+   display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 colonnes égales */
+    gap: 10px; /* Espacement entre les éléments */
+    padding: 10px;
+
+}
+
+#info-parents-fields
+{
+   display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 colonnes égales */
+    gap: 10px; /* Espacement entre les éléments */
+    padding: 10px;
+
+}
+
+#info-person-fields
+{
+   display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 colonnes égales */
+    gap: 10px; /* Espacement entre les éléments */
+    padding: 10px;
+
+}
+
+#info-fields
+{
+   display: grid;
+    grid-template-columns: repeat(1, 1fr); /* 2 colonnes égales */
+    gap: 10px; /* Espacement entre les éléments */
+    padding: 10px;
+
+}
+
+#password-fields
+{
+   display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 colonnes égales */
+    gap: 10px; /* Espacement entre les éléments */
+    padding: 10px;
+
 }
