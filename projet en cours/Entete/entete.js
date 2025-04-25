@@ -19,53 +19,237 @@ window.addEventListener('click', (e) => {
 });
 
 
-function switchToLogin() {
+
+
+
+
+
+function inscriptionenfant() {
     // Change the title
-    document.getElementById('form-title').innerText = 'Connexion';
-
-    // Hide name fields
-    document.getElementById('name-fields').style.display = 'none';
-
-    document.getElementById('info-fields').style.display = 'none';
-
-    // Only keep email and password fields
-    document.getElementById('password-fields').innerHTML = `
-        <label for="password">Mot de passe :</label>
-        <textarea id="password" name="password" required></textarea>
-    `;
-
-    // Optionally, you can change the "Envoyer" button text
-    document.querySelector('.boutonpop[type="submit"]').innerText = 'Se connecter';
-
-    // Change the toggle button to switch back to signup
-    const toggleButton = document.getElementById('toggle-button');
-    toggleButton.innerText = "S'inscrire";
-    toggleButton.setAttribute('onclick', 'switchToSignup()');
-}
-
-function switchToSignup() {
-    // Change the title
-    document.getElementById('form-title').innerText = 'Formulaire d\'inscription';
+    document.getElementById('form-title').innerText = 'Formulaire d\'inscription de l\'enfant';
 
     // Show name fields
-    document.getElementById('name-fields').style.display = 'block';
 
-    document.getElementById('info-fields').style.display = 'block';
+    document.getElementById('info-kids-fields').style.display = 'grid';
+
+    document.getElementById('info-parents-fields').style.display = 'grid' ;
+
+    document.getElementById('info-person-fields').style.display = 'none' ;
+
+    document.getElementById('info-kids-fields').innerHTML= `
+                    <div>
+                        <label for="name">Nom de l'enfant :</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div>
+                        <label for="surname">Prénom de l'enfant :</label>
+                        <input type="text" id="surname" name="surname" required>
+                    </div>
+                        
+
+                    <div>
+                        <label for="Age">Date de naissance de l'enfant :</label>
+                        <input type="date" id="Age" name="Age" required>    
+                    </div>
+                     
+                    <div>
+                        <label for="sexe">sexe de l'enfant :</label>
+                        <input type="text" id="sexe" name="sexe" maxlength="1" required>  
+                    </div>
+`;
+
+    document.getElementById('info-parents-fields').innerHTML = `<div>
+    <label for="parentname">Nom du parent :</label>
+<input type="text" id="parentname" name="parentname" required>
+</div>
+
+<div>
+    <label for="parentsurname">Prénom du parent :</label>
+    <input type="text" id="parentsurname" name="parentsurname" required>
+</div>
+
+
+<div>
+    <label for="phone">Numéro de téléphone :</label>
+    <input type="tel" id="phone" name="phone" required>  
+</div>
+
+<div>
+    <label for="email">Email :</label>
+    <input type="email" id="email" name="email" required> 
+</div>`;
+
+    document.getElementById('info-fields').innerHTML = `<label for="entenduparler">Comment avez-vous entendu parler de nous ? :</label>
+    <input type="text" id="entenduparler" name="entenduparler" required>
+
+    <label for="Condition">Condition médicale (vaccin, groupe sanguin, asthme, allergies, ...) :</label>
+    <input type="text" id="Condition" name="Condition" required>`;
+
+    document.getElementById('password-fields').style.display = ' grid' ;
 
     // Restore email and password fields to include verification
     document.getElementById('password-fields').innerHTML = `
+    <div>
         <label for="password">Mot de passe :</label>
-        <textarea id="password" name="password" required></textarea>
+        <input id="password" name="password" required> 
+    </div>
 
+    <div>
         <label for="passwordverif">Vérification du Mot de passe :</label>
-        <textarea id="passwordverif" name="passwordverif" required></textarea>
+        <input id="passwordverif" name="passwordverif" required> 
+    </div>
     `;
 
-    // Optionally, you can change the "Envoyer" button text back to "Envoyer"
-    document.querySelector('.boutonpop[type="submit"]').innerText = 'Envoyer';
+    var boutonpop1 = document.getElementById('toggle-button-1');
+    boutonpop1.setAttribute('onclick', '');
+    boutonpop1.setAttribute('name', 'togglebutton1');
+
+    var boutonpop2 = document.getElementById('toggle-button-2');
+    boutonpop2.setAttribute('onclick', 'inscription()');
+    boutonpop2.setAttribute('name', '');
+
+    var boutonpop3 = document.getElementById('toggle-button-3');
+    boutonpop3.setAttribute('onclick', 'connexion()');
+    boutonpop3.setAttribute('name', '');
+    
+}
+
+
+function inscription() {
+    // Change the title
+    document.getElementById('form-title').innerText = 'Formulaire d\'inscription de l\'enfant';
+
+    // Show name fields
+    document.getElementById('info-kids-fields').style.display = 'none';
+    document.getElementById('info-parents-fields').style.display = 'none';
+
+    document.getElementById('info-person-fields').style.display = 'grid';
+
+    document.getElementById('info-person-fields').innerHTML = `<div>
+    <label for="name">Nom :</label>
+<input type="text" id="name" name="name" required>
+</div>
+
+<div>
+    <label for="surname">Prénom :</label>
+    <input type="text" id="surname" name="surname" required>
+</div>
+
+<div>
+                        <label for="Age">Date de naissance de l'enfant :</label>
+                        <input type="date" id="Age" name="Age" required>    
+                    </div>
+                     
+                    <div>
+                        <label for="sexe">sexe de l'enfant :</label>
+                        <input type="text" id="sexe" name="sexe" maxlength="1" required>  
+                    </div>
+
+
+<div>
+    <label for="phone">Numéro de téléphone :</label>
+    <input type="tel" id="phone" name="phone" required>  
+</div>
+
+<div>
+    <label for="email">Email :</label>
+    <input type="email" id="email" name="email" required> 
+</div>`;
+
+    document.getElementById('info-fields').innerHTML = `
+
+    
+    <label for="entenduparler">Comment avez-vous entendu parler de nous ? :</label>
+    <input type="text" id="entenduparler" name="entenduparler" required>
+
+    <label for="Condition">Condition médicale (vaccin, groupe sanguin, asthme, allergies, ...) :</label>
+    <input type="text" id="Condition" name="Condition" required>`;
+
+    document.getElementById('password-fields').style.display = ' grid' ;
+
+    // Restore email and password fields to include verification
+    document.getElementById('password-fields').innerHTML = `
+    <div>
+        <label for="password">Mot de passe :</label>
+        <input id="password" name="password" required> 
+    </div>
+
+    <div>
+        <label for="passwordverif">Vérification du Mot de passe :</label>
+        <input id="passwordverif" name="passwordverif" required> 
+    </div>
+    `;
+
+    
+
 
     // Change the toggle button to switch back to login
-    const toggleButton = document.getElementById('toggle-button');
-    toggleButton.innerText = "se connecter";
-    toggleButton.setAttribute('onclick', 'switchToLogin()');
+
+    
+
+    var boutonpop2 = document.getElementById('toggle-button-2');
+    boutonpop2.setAttribute('onclick', '');
+    boutonpop2.setAttribute('name', 'togglebutton2');
+
+
+    var boutonpop1 = document.getElementById('toggle-button-1');
+    boutonpop1.setAttribute('onclick', 'inscriptionenfant()');
+    boutonpop1.setAttribute('name', '');
+
+    var boutonpop3 = document.getElementById('toggle-button-3');
+    boutonpop3.setAttribute('onclick', 'connexion()');
+    boutonpop3.setAttribute('name', '');
+
+    
 }
+
+function connexion() {
+    // Change the title
+    document.getElementById('form-title').innerText = 'Formulaire d\'inscription de l\'enfant';
+
+    // Show name fields
+    document.getElementById('info-kids-fields').style.display = 'none';
+
+    document.getElementById('info-parents-fields').style.display = 'none' ;
+
+    document.getElementById('info-person-fields').style.display = 'none' ;
+
+    document.getElementById('info-fields').innerHTML = `<label for="email">Email :</label>
+    <input type="email" id="email" name="email" required>  `;
+    
+    
+    document.getElementById('password-fields').style.display = ' block' ;
+    
+
+    // Restore email and password fields to include verification
+    document.getElementById('password-fields').innerHTML = `
+    
+        <label for="password">Mot de passe :</label>
+        <input id="password" name="password" required> 
+    `;
+
+    
+
+    
+
+
+    // Change the toggle button to switch back to login
+    
+
+    var boutonpop1 = document.getElementById('toggle-button-1');
+    boutonpop1.setAttribute('onclick', 'inscriptionenfant()');
+    boutonpop1.setAttribute('name', '');
+
+    var boutonpop2 = document.getElementById('toggle-button-2');
+    boutonpop2.setAttribute('onclick', 'inscription()');
+    boutonpop2.setAttribute('name', '');
+
+    var boutonpop3 = document.getElementById('toggle-button-3');
+    boutonpop3.setAttribute('onclick', '');
+    boutonpop3.setAttribute('name', 'togglebutton3');
+}
+
+
+
+
+
