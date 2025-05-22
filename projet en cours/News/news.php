@@ -24,6 +24,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_commentaire']))
         }
     }
 }
+
+session_start();
+$isAdmin = true;
+
 ?>
 
 <!DOCTYPE html>
@@ -111,6 +115,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_commentaire']))
         .Likes{
             display:flex;
         }
+        .hidden {
+        display: none;
+    }
     </style>
 </head>
 
@@ -120,6 +127,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_commentaire']))
     <div class="page">
         <?php include("menu.php"); ?>
         <div id="page2">
+            <?php if ($isAdmin): ?>
+                <div style="display : block; ">
+                    <button onclick="document.getElementById('form-ajout-news').classList.toggle('hidden');"
+                            style="background-color: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">
+                        ➕ Ajouter une news
+                    </button>
+                </div>
+                <form id="form-ajout-news" class="hidden" method="POST" action="ajouter_news.php" style=" position: fixed; margin-top: 15px; flex-direction: column; gap: 10px; background: #f9f9f9; padding: 15px; border-radius: 8px; z-index : 30;">
+                        <label for="photo_news">Lien Google Sides :</label>
+                        <input type="url" name="photo_news" id="photo_news" required placeholder="https://drive.google.com/file/d/..." style="padding: 8px;">
+
+                        <label for="info_news">Titre :</label>
+                        <input type="text" name="info_news" id="info_news" required placeholder="Résumé de la news" style="padding: 8px;">
+
+                        <button type="submit" name="submit_news" style="background-color: green; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer;">
+                            Publier la news
+                        </button>
+                    </form>
+            <?php endif; ?>
             <div class="grand_contenaire">
                 <!-- Flèche gauche -->
                 <button class="carousel-arrow left" onclick="precedenteslide()">&lt;</button>
@@ -142,10 +168,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_commentaire']))
                             ?>
                             <div class="news-item" id="news-<?php echo $idnews; ?>">
                                 <div class="news_poste marge">
+                                    <?php if ($isAdmin): ?>
+                                        <form method="POST" action="supprimer_news.php" onsubmit="return confirm('Voulez-vous vraiment supprimer cette news ?');" style="margin-top:10px;">
+                                            <input type="hidden" name="id_news" value="<?php echo $idnews; ?>">
+                                            <button type="submit" style="background-color: red; color: white; padding: 5px 10px; border: none; border-radius: 5px; cursor: pointer;">
+                                                Supprimer la news
+                                            </button>
+                                        </form>
+                                    <?php endif; ?>
                                     <div class="top">
                                         <div class="gauche"><?php echo htmlspecialchars($titrenews); ?></div>
                                         <div class="droite"><?php echo htmlspecialchars($datenews); ?></div>
                                     </div>
+
                                     <div class="imagenews pdfnews-container calendar-container iframe-shadow">
                                         <?php
                                         // Transformation de l'URL pour l'intégration
