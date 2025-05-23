@@ -136,15 +136,53 @@ $isAdmin = true;
                 </div>
                 <form id="form-ajout-news" class="hidden" method="POST" action="ajouter_news.php" style=" position: fixed; margin-top: 15px; flex-direction: column; gap: 10px; background: #f9f9f9; padding: 15px; border-radius: 8px; z-index : 30;">
                         <label for="photo_news">Lien Google Sides :</label>
-                        <input type="url" name="photo_news" id="photo_news" required placeholder="https://drive.google.com/file/d/..." style="padding: 8px;">
-
+                        <input 
+                        type="url" 
+                        name="photo_news" 
+                        id="photo_news" 
+                        required 
+                        placeholder="https://docs.google.com/presentation/d/..." 
+                        pattern="^https:\/\/docs\.google\.com\/presentation\/d\/e\/[a-zA-Z0-9_-]+\/pub\?start=false&loop=false&delayms=3000$"
+                        style="padding: 8px;"
+                        title="Veuillez entrer un lien Google Slides valide du type: https://docs.google.com/presentation/d/e/.../pub?start=false&loop=false&delayms=3000"
+                        />
                         <label for="info_news">Titre :</label>
                         <input type="text" name="info_news" id="info_news" required placeholder="Résumé de la news" style="padding: 8px;">
+
+                        <script>
+                            document.getElementById('form-ajout-news').addEventListener('submit', function (e) {
+                                const input = document.getElementById('photo_news');
+                                const url = input.value.trim();
+                                const regex = /^https:\/\/docs\.google\.com\/presentation\/d\/e\/[a-zA-Z0-9_-]+\/pub\?start=false&loop=false&delayms=3000$/;
+
+                                if (!regex.test(url)) {
+                                    e.preventDefault(); // Block the form
+                                    alert("❌ Lien Google Slides invalide. Il doit être au format exact : https://docs.google.com/presentation/d/e/.../pub?start=false&loop=false&delayms=3000");
+                                    input.focus();
+                                }
+                            });
+                        </script>
+
+                        <?php
+                            if ($_SERVER["REQUEST_METHOD"] === "POST") {
+                                $photo_news = trim($_POST['photo_news']);
+                                $info_news = trim($_POST['info_news']);
+
+                                $pattern = "/^https:\/\/docs\.google\.com\/presentation\/d\/e\/[a-zA-Z0-9_-]+\/pub\?start=false&loop=false&delayms=3000$/";
+
+                                if (!preg_match($pattern, $photo_news)) {
+                                    die("❌ Erreur : Lien Google Slides invalide. Soumission rejetée.");
+                                }
+
+                                // ✅ Continuer avec le traitement et stockage
+                                // ex: insert into DB etc...
+                            }
+                        ?>
 
                         <button type="submit" name="submit_news" style="background-color: green; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer;">
                             Publier la news
                         </button>
-                    </form>
+                </form>
             <?php endif; ?>
             <div class="grand_contenaire">
                 <!-- Flèche gauche -->
