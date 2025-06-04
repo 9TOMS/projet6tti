@@ -1,45 +1,87 @@
 <?php
-// Exemple : définir si l'utilisateur est admin (true/false)
-$estAdmin = false; // ou false selon ta logique
 
-// Poser le cookie isAdmin avant tout affichage
-setcookie("isAdmin", $estAdmin ? "1" : "0", time() + 3600, "/");
-if ((isset($_POST['submit'])))
-{
-    if (isset($_POST['Nom']))
-    {
-        if (isset($_POST['Prenom']))
-        {
-            if (isset($_POST['Email']))
-            {
-                if (isset($_POST['tel']))
-                {
-                    if (isset($_POST['number']))
-                    {
-                        $bdd = mysqli_connect('localhost','root', '','users');
-                        mysqli_set_charset($bdd, "utf8");
-                        $compteur = 0;
-                        $requete =  "SELECT Pseudo_Utilisateur FROM users WHERE Statut_Utilisateur= 'Administrateur'";
-                        $pseudo = mysqli_query($bdd,$requete);
-                        while ($donnes = mysqli_fetch_assoc($pseudo)) 
-                        {   
-                            if ($donnes['Pseudo_Utilisateur'] == $_POST['pseudo'])
-                            {
-                                $compteur = $compteur + 1;
-                            }
-                        }
-                    }
-                }
-            }
-        }
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'inscription') {
+    $bdd = mysqli_connect('localhost', 'root', '', 'users');
+    mysqli_set_charset($bdd, "utf8");
+
+    // Récupérer et sécuriser les données
+    $evenement_id = intval($_POST['evenement_id']);
+    $nom = mysqli_real_escape_string($bdd, $_POST['Nom']);
+    $prenom = mysqli_real_escape_string($bdd, $_POST['Prenom']);
+    $email = mysqli_real_escape_string($bdd, $_POST['Email']);
+    $tel = mysqli_real_escape_string($bdd, $_POST['tel']);
+    $nombre = intval($_POST['number']);
+
+    $query = "INSERT INTO inscriptions (evenement_id, nom, prenom, email, tel, nombre_participants) VALUES ($evenement_id, '$nom', '$prenom', '$email', '$tel', $nombre)";
+    if (mysqli_query($bdd, $query)) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['success' => false, 'error' => mysqli_error($bdd)]);
     }
+    exit;
 }
+
+// Connexion base de données
+$bdd = mysqli_connect('localhost', 'root', '', 'users');
+mysqli_set_charset($bdd, "utf8");
+
+// Gestion de la partie API REST interne pour les événements
+if (isset($_GET['api']) && $_GET['api'] === 'evenements') {
+    header('Content-Type: application/json');
+    $method = $_SERVER['REQUEST_METHOD'];
+
+    if ($method === 'GET') {
+        if (isset($_GET['date'])) {
+            $date = mysqli_real_escape_string($bdd, $_GET['date']);
+            $query = "SELECT * FROM evenements WHERE date = '$date'";
+        } else {
+            $query = "SELECT * FROM evenements";
+        }
+        $result = mysqli_query($bdd, $query);
+        $events = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $events[] = $row;
+        }
+        echo json_encode($events);
+        exit;
+    }
+
+    if ($method === 'POST') {
+        $input = json_decode(file_get_contents('php://input'), true);
+        $date = mysqli_real_escape_string($bdd, $input['date']);
+        $heure = mysqli_real_escape_string($bdd, $input['heure']);
+        $nom = mysqli_real_escape_string($bdd, $input['nom']);
+
+        $query = "INSERT INTO evenements (date, heure, nom) VALUES ('$date', '$heure', '$nom')";
+        if (mysqli_query($bdd, $query)) {
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['success' => false, 'error' => mysqli_error($bdd)]);
+        }
+        exit;
+    }
+        if ($method === 'DELETE') {
+        $input = json_decode(file_get_contents('php://input'), true);
+        $id = intval($input['id']);
+        $query = "DELETE FROM evenements WHERE id = $id";
+        if (mysqli_query($bdd, $query)) {
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['success' => false, 'error' => mysqli_error($bdd)]);
+        }
+        exit;
+    }
+
+}
+
+
+
 ?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
     <title>Contact</title>
     <style>
         /* Styles généraux pour le corps de la page */
@@ -191,340 +233,433 @@ if ((isset($_POST['submit'])))
     </style>
 </head>
 <body>
-
-<!-- Inclusion de l’en-tête -->
 <?php include("entete.php"); ?>
 <div class="page">
-    <?php include("menu.php"); ?>
+<?php include("menu.php"); ?>
 
-    <div id="agenda-custom">
-        <!-- Section de l'agenda journalier, masquée par défaut -->
-        <div class="agenda-jour hidden" id="agenda-jour">
-            <h1 id="jour-titre">Agenda du jour</h1>
-            <div class="agenda" id="agenda-journee"></div>
-            <button class="back-button" onclick="retourAgendaFinal()">Retour à l'agenda</button>
-        </div>
+<div id="agenda-custom">
+    <div class="agenda-jour hidden" id="agenda-jour">
+        <h1 id="jour-titre">Agenda du jour</h1>
+        <div class="agenda" id="agenda-journee"></div>
+        <button class="back-button" onclick="retourAgendaFinal()">Retour à l'agenda</button>
+    </div>
 
-        <!-- Section de l'agenda mensuel -->
-        <div class="agenda-final" id="agenda-final">
-            <h1>Agenda</h1>
-            <div id="agenda-final-contenu" class="agenda-mois"></div>
-        </div>
+    <div class="agenda-final" id="agenda-final">
+        <div id="agenda-final-contenu" class="agenda-mois"></div>
     </div>
 </div>
 
-<!-- Inclusion du pied de page -->
+</div>
 <?php include("pied_de_page.php"); ?>
 
 <script>
-    function getCookie(name) 
+const isAdmin = <?php echo isset($_COOKIE['isAdmin']) && $_COOKIE['isAdmin'] === "1" ? 'true' : 'false'; ?>;
+//const isAdmin = true;
+
+const agendaJourDiv = document.getElementById("agenda-jour");
+const agendaJournee = document.getElementById("agenda-journee");
+const jourTitre = document.getElementById("jour-titre");
+
+// API interne
+async function getEvenements(dateStr) {
+    const response = await fetch(`?api=evenements&date=${dateStr}`);
+    return response.json();
+}
+
+async function saveEvenement(dateStr, heure, nom) {
+    const response = await fetch('?api=evenements', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({date: dateStr, heure: heure, nom: nom})
+    });
+    const result = await response.json();
+    return result.success;
+}
+
+// Fonctions inchangées...
+
+function getStartOfWeek(date) {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = (day + 6) % 7;
+    d.setDate(d.getDate() - diff);
+    d.setHours(0, 0, 0, 0);
+    return d;
+}
+
+function formatDateFR(date) {
+    return date.toLocaleDateString("fr-FR", {
+        weekday: "short", day: "numeric", month: "short"
+    });
+}
+
+function formatDateLong(dateStr) {
+    return new Date(dateStr).toLocaleDateString("fr-FR", {
+        weekday: "long", year: "numeric", month: "long", day: "numeric"
+    });
+}
+
+async function ouvrirAgendaJour(dateStr) {
+    if (!isAdmin) 
     {
-        const cookies = document.cookie.split(';');
-        for (let cookie of cookies) {
-            cookie = cookie.trim();
-            if (cookie.startsWith(name + '=')) {
-                return cookie.substring((name + '=').length);
-            }
-        }
-        return null;
+       return; 
     }
+    
+    document.getElementById("agenda-final").classList.add("hidden");
+    agendaJourDiv.classList.remove("hidden");
+    jourTitre.textContent = "Agenda du " + formatDateLong(dateStr);
+    agendaJournee.innerHTML = "";
 
-    const isAdmin = getCookie("isAdmin") === "1";
-    const agendaJourDiv = document.getElementById("agenda-jour");
-    const agendaJournee = document.getElementById("agenda-journee");
-    const jourTitre = document.getElementById("jour-titre");
+    const events = await getEvenements(dateStr);
 
-    // Renvoie le lundi de la semaine correspondant à la date donnée
-    function getStartOfWeek(date) {
-        const d = new Date(date);
-        const day = d.getDay();
-        const diff = (day + 6) % 7; // permet d’avoir lundi comme début de semaine
-        d.setDate(d.getDate() - diff);
-        d.setHours(0, 0, 0, 0);
-        return d;
-    }
+    for (let hour = 8; hour <= 18; hour++) {
+        const timeRow = document.createElement("div");
+        timeRow.className = "time-slot hour";
+        timeRow.textContent = hour + ":00";
+        agendaJournee.appendChild(timeRow);
 
-    // Format court en français : lun. 12 avr.
-    function formatDateFR(date) {
-        return date.toLocaleDateString("fr-FR", {
-            weekday: "short", day: "numeric", month: "short"
-        });
-    }
+        const eventCell = document.createElement("div");
+        eventCell.className = "time-slot event-cell";
+        eventCell.dataset.time = hour + ":00";
 
-    // Format long en français : lundi 12 avril 2025
-    function formatDateLong(dateStr) {
-        return new Date(dateStr).toLocaleDateString("fr-FR", {
-            weekday: "long", year: "numeric", month: "long", day: "numeric"
-        });
-    }
+        // Remplir la cellule si un événement existe
+        const event = events.find(e => e.heure === eventCell.dataset.time);
+        if (event) {
+            const eventDiv = document.createElement("div");
+            eventDiv.className = "event";
+            eventDiv.textContent = event.nom;
+            
+            // Bouton supprimer
+            if (isAdmin) {
+                const btnDelete = document.createElement("button");
+                btnDelete.textContent = "×"; // Croisillon pour supprimer
+                btnDelete.title = "Supprimer cet événement";
+                btnDelete.style.position = "absolute";
+                btnDelete.style.top = "2px";
+                btnDelete.style.right = "2px";
+                btnDelete.style.background = "red";
+                btnDelete.style.color = "white";
+                btnDelete.style.border = "none";
+                btnDelete.style.borderRadius = "50%";
+                btnDelete.style.width = "18px";
+                btnDelete.style.height = "18px";
+                btnDelete.style.cursor = "pointer";
+                btnDelete.style.fontWeight = "bold";
+                btnDelete.style.fontSize = "14px";
+                btnDelete.style.lineHeight = "18px";
+                btnDelete.style.padding = "0";
 
-    // Affiche l’agenda journalier d’une date précise
-    function ouvrirAgendaJour(dateStr) {
-        if (!isAdmin) {
-        return;
-    }
-        document.getElementById("agenda-final").classList.add("hidden");
-        agendaJourDiv.classList.remove("hidden");
-        jourTitre.textContent = "Agenda du " + formatDateLong(dateStr);
-        agendaJournee.innerHTML = "";
-
-        for (let hour = 8; hour <= 18; hour++) {
-            // Ajout de l’heure
-            const timeRow = document.createElement("div");
-            timeRow.className = "time-slot hour";
-            timeRow.textContent = hour + ":00";
-            agendaJournee.appendChild(timeRow);
-
-            // Cellule événementielle
-            const eventCell = document.createElement("div");
-            eventCell.className = "time-slot event-cell";
-            eventCell.dataset.time = hour + ":00";
-
-            eventCell.addEventListener("click", () => {
-                // Création du menu de choix d'événement
-                const select = document.createElement("select");
-                ["BALADES", "COURS", "STAGES"].forEach(optionText => {
-                    const option = document.createElement("option");
-                    option.value = optionText;
-                    option.textContent = optionText;
-                    select.appendChild(option);
-                });
-
-                // Boîte de confirmation
-                const confirmation = document.createElement("div");
-                confirmation.style.position = "fixed";
-                confirmation.style.top = "50%";
-                confirmation.style.left = "50%";
-                confirmation.style.transform = "translate(-50%, -50%)";
-                confirmation.style.background = "white";
-                confirmation.style.padding = "20px";
-                confirmation.style.border = "1px solid black";
-                confirmation.style.zIndex = 1000;
-                confirmation.style.textAlign = "center";
-                confirmation.style.borderRadius = "8px";
-                confirmation.style.boxShadow = "0 0 10px rgba(0,0,0,0.5)";
-
-                const label = document.createElement("label");
-                label.textContent = "Choisissez le type d'événement :";
-                label.style.display = "block";
-                label.style.marginBottom = "10px";
-
-                const boutonValider = document.createElement("button");
-                boutonValider.textContent = "Valider";
-                boutonValider.style.marginTop = "10px";
-                boutonValider.style.padding = "5px 10px";
-                boutonValider.style.backgroundColor = "blue";
-                boutonValider.style.color = "white";
-                boutonValider.style.border = "none";
-                boutonValider.style.borderRadius = "5px";
-                boutonValider.style.cursor = "pointer";
-
-                boutonValider.onclick = () => {
-                    // Sauvegarde de l’événement
-                    const eventName = select.value;
-                    const eventDiv = document.createElement("div");
-                    eventDiv.className = "event";
-                    eventDiv.textContent = eventName;
-                    eventCell.innerHTML = '';
-                    eventCell.appendChild(eventDiv);
-
-                    const saved = JSON.parse(localStorage.getItem("evenementsPerso") || "{}");
-                    if (!saved[dateStr]) saved[dateStr] = [];
-                    saved[dateStr].push({ time: eventCell.dataset.time, name: eventName });
-                    localStorage.setItem("evenementsPerso", JSON.stringify(saved));
-
-                    document.body.removeChild(confirmation);
+                btnDelete.onclick = async (e) => {
+                    e.stopPropagation(); // Pour éviter d'ouvrir le select de création
+                    if (confirm("Voulez-vous vraiment supprimer cet événement ?")) {
+                        const res = await fetch('?api=evenements', {
+                            method: 'DELETE',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({id: event.id})
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            window.location.reload();// Rafraîchir l'affichage de la journée
+                        } else {
+                            alert("Erreur lors de la suppression : " + data.error);
+                        }
+                    }
                 };
 
-                confirmation.appendChild(label);
-                confirmation.appendChild(select);
-                confirmation.appendChild(boutonValider);
-                document.body.appendChild(confirmation);
-            });
-
-            agendaJournee.appendChild(eventCell);
-        }
-    }
-
-    // Retour à l'affichage de l'agenda mensuel
-    function retourAgendaFinal() {
-        agendaJourDiv.classList.add("hidden");
-        document.getElementById("agenda-final").classList.remove("hidden");
-    }
-
-    // Affichage de l’agenda mensuel avec les événements
-    function afficherAgendaFinal() {
-        const liste = document.getElementById("agenda-final-contenu");
-        liste.innerHTML = "";
-
-        const evenements = JSON.parse(localStorage.getItem("evenementsPerso") || "{}");
-
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const start = getStartOfWeek(today);
-        const end = new Date(today);
-        end.setMonth(end.getMonth() + 1);
-
-        const allDays = [];
-        for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-            allDays.push(new Date(d));
-        }
-
-        let semaineDiv;
-        for (let i = 0; i < allDays.length; i++) {
-            const day = allDays[i];
-            const dateStr = day.toISOString().split("T")[0];
-
-            if (i % 7 === 0) {
-                if (semaineDiv) liste.appendChild(semaineDiv);
-                semaineDiv = document.createElement("div");
-                semaineDiv.className = "semaine";
+                eventDiv.appendChild(btnDelete);
             }
+            eventCell.appendChild(eventDiv);
+        }
 
-            const titreJour = document.createElement("div");
-            titreJour.className = "carte";
-            titreJour.style.cursor = "pointer";
+        eventCell.addEventListener("click", () => {
+            if (!isAdmin) return;
 
-            const h4 = document.createElement("h4");
-            h4.textContent = formatDateFR(day);
-            titreJour.appendChild(h4);
-
-            titreJour.addEventListener("click", () => {
-                ouvrirAgendaJour(dateStr);
+            const select = document.createElement("select");
+            ["BALADES", "COURS", "STAGES"].forEach(opt => {
+                const option = document.createElement("option");
+                option.value = opt;
+                option.textContent = opt;
+                select.appendChild(option);
             });
 
-            const events = evenements[dateStr] || [];
-            if (events.length === 0) {
-                const noEventMessage = document.createElement("div");
-                noEventMessage.textContent = "Aucun événement";
-                noEventMessage.style.fontStyle = "italic";
-                titreJour.appendChild(noEventMessage);
+            const confirmation = document.createElement("div");
+            confirmation.style.position = "fixed";
+            confirmation.style.top = "50%";
+            confirmation.style.left = "50%";
+            confirmation.style.transform = "translate(-50%, -50%)";
+            confirmation.style.background = "white";
+            confirmation.style.padding = "20px";
+            confirmation.style.border = "1px solid black";
+            confirmation.style.zIndex = 1000;
+            confirmation.style.textAlign = "center";
+            confirmation.style.borderRadius = "8px";
+            confirmation.style.boxShadow = "0 0 10px rgba(0,0,0,0.5)";
+
+            const label = document.createElement("label");
+            label.textContent = "Choisissez le type d'événement :";
+            label.style.display = "block";
+            label.style.marginBottom = "10px";
+
+            const boutonValider = document.createElement("button");
+            boutonValider.textContent = "Valider";
+            boutonValider.style.marginTop = "10px";
+            boutonValider.style.padding = "5px 10px";
+            boutonValider.style.backgroundColor = "blue";
+            boutonValider.style.color = "white";
+            boutonValider.style.border = "none";
+            boutonValider.style.borderRadius = "5px";
+            boutonValider.style.cursor = "pointer";
+            boutonValider.onclick = async () => {
+            const eventName = select.value;
+            const success = await saveEvenement(dateStr, eventCell.dataset.time, eventName);
+            if(success) {
+                window.location.reload();
             } else {
-                events.forEach(event => {
-                    const boutonEvent = document.createElement("button");
-                    boutonEvent.className = "bouton disponible";
-                    boutonEvent.style.margin = "5px 0";
-                    boutonEvent.textContent = event.time + " — " + event.name;
-                    boutonEvent.onclick = () => {
-                    // Crée la boîte modale
-                    const modal = document.createElement("div");
-                    modal.style.position = "fixed";
-                    modal.style.top = "50%";
-                    modal.style.left = "50%";
-                    modal.style.transform = "translate(-50%, -50%)";
-                    modal.style.background = "white";
-                    modal.style.padding = "20px";
-                    modal.style.border = "1px solid black";
-                    modal.style.zIndex = 1000;
-                    modal.style.borderRadius = "10px";
-                    modal.style.boxShadow = "0 0 10px rgba(0, 0, 0, 0.5)";
-                    modal.style.Width = "500px";
-                        modal.style.heigth = "800px";
-                    // Titre
-                    const title = document.createElement("h3");
-                    title.textContent = "Formulaire d'inscription";
-                    modal.appendChild(title);
-
-                    // Formulaire
-                    const form = document.createElement("form");
-                    form.method = "post";
-
-                    const labelNom = document.createElement("label");
-                    labelNom.textContent = "Nom :";
-                    form.appendChild(labelNom);
-
-                    const inputNom = document.createElement("input");
-                    inputNom.type = "text";
-                    inputNom.name = "Nom";
-                    inputNom.style.width = "100%";
-                    inputNom.style.marginBottom = "10px";
-                    form.appendChild(inputNom);
-                    
-                    // Prénom
-                    const labelPrenom = document.createElement("label");
-                    labelPrenom.textContent = "Prénom :";
-                    form.appendChild(labelPrenom);
-
-                    const inputPrenom = document.createElement("input");
-                    inputPrenom.type = "text";
-                    inputPrenom.name = "Prenom";
-                    inputPrenom.style.width = "100%";
-                    inputPrenom.style.marginBottom = "10px";
-                    form.appendChild(inputPrenom);
-
-                    const labelEmail = document.createElement("label");
-                    labelEmail.textContent = "Email :";
-                    form.appendChild(labelEmail);
-
-                    const inputEmail = document.createElement("input");
-                    inputEmail.type = "text";
-                    inputEmail.name = "Email";
-                    inputEmail.style.width = "100%";
-                    inputEmail.style.marginBottom = "10px";
-                    form.appendChild(inputEmail);
-
-                    // Téléphone
-                    const labelTel = document.createElement("label");
-                    labelTel.textContent = "Téléphone :";
-                    form.appendChild(labelTel);
-
-                    const inputTel = document.createElement("input");
-                    inputTel.type = "tel";
-                    inputTel.name = "tel";
-                    inputTel.style.width = "100%";
-                    inputTel.style.marginBottom = "10px";
-                    form.appendChild(inputTel);
-
-                    // Nombre de personnes
-                    const labelNb = document.createElement("label");
-                    labelNb.textContent = "Nombre de personnes :";
-                    form.appendChild(labelNb);
-
-                    const inputNb = document.createElement("input");
-                    inputNb.type = "number";
-                    inputNb.name = "number";
-                    inputNb.min = "1";
-                    inputNb.style.width = "100%";
-                    inputNb.style.marginBottom = "10px";
-                    form.appendChild(inputNb);
-
-                    // Boutons
-                    const boutonFermer = document.createElement("button");
-                    boutonFermer.textContent = "Fermer";
-                    boutonFermer.type = "button";
-                    boutonFermer.style.marginRight = "10px";
-                    boutonFermer.onclick = () => document.body.removeChild(modal);
-
-                    const boutonSauver = document.createElement("button");
-                    boutonSauver.textContent = "Sauver";
-                    boutonSauver.type = "submit";
-                    boutonSauver.value = "submit";
-                    boutonSauver.name = "submit";
-                    
-                    event.name;
-
-                    form.appendChild(boutonFermer);
-                    form.appendChild(boutonSauver);
-
-                   
-
-                    modal.appendChild(form);
-                    document.body.appendChild(modal);
-                };
-                    titreJour.appendChild(boutonEvent);
-                });
+                alert("Erreur lors de la sauvegarde.");
             }
+            document.body.removeChild(confirmation);
+            };
 
-            semaineDiv.appendChild(titreJour);
-        }
+            confirmation.appendChild(label);
+            confirmation.appendChild(select);
+            confirmation.appendChild(boutonValider);
+            document.body.appendChild(confirmation);
+        });
 
-        if (semaineDiv) {
-            liste.appendChild(semaineDiv);
-        }
+        agendaJournee.appendChild(eventCell);
+    }
+}
+
+function retourAgendaFinal() {
+    agendaJourDiv.classList.add("hidden");
+    document.getElementById("agenda-final").classList.remove("hidden");
+}
+
+async function afficherAgendaFinal() {
+
+    const liste = document.getElementById("agenda-final-contenu");
+    liste.innerHTML = "";
+
+    // Récupération de tous les événements
+    const evenements = await (await fetch('?api=evenements')).json();
+
+    // Regrouper par date
+    const eventsByDate = {};
+    evenements.forEach(e => {
+        if (!eventsByDate[e.date]) eventsByDate[e.date] = [];
+        eventsByDate[e.date].push(e);
+    });
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const start = getStartOfWeek(today);
+    const end = new Date(today);
+    end.setMonth(end.getMonth() + 1);
+
+    const allDays = [];
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        allDays.push(new Date(d));
     }
 
-    // Chargement initial de l’agenda
-    afficherAgendaFinal();
+    let semaineDiv;
+    for (let i = 0; i < allDays.length; i++) {
+        const day = allDays[i];
+    const dateStr = day.getFullYear() + '-' +
+                String(day.getMonth() + 1).padStart(2, '0') + '-' +
+                String(day.getDate()).padStart(2, '0');
+
+        if (i % 7 === 0) {
+            if (semaineDiv) liste.appendChild(semaineDiv);
+            semaineDiv = document.createElement("div");
+            semaineDiv.className = "semaine";
+        }
+
+        const titreJour = document.createElement("div");
+        titreJour.className = "carte";
+        titreJour.style.cursor = "pointer";
+
+        const h4 = document.createElement("h4");
+        h4.textContent = formatDateFR(day);
+        titreJour.appendChild(h4);
+
+        titreJour.addEventListener("click", () => {
+        if (isAdmin) {
+            ouvrirAgendaJour(dateStr);
+        } else {
+            ouvrirFormulaireInscription(dateStr);
+        }
+        });
+
+        const events = eventsByDate[dateStr] || [];
+        events.forEach(ev => {
+            const eventDiv = document.createElement("div");
+            eventDiv.textContent = ev.heure + " " + ev.nom;
+            eventDiv.style.backgroundColor = "#d7e7fa";
+            eventDiv.style.margin = "2px 0";
+            eventDiv.style.padding = "2px 5px";
+            eventDiv.style.borderRadius = "4px";
+            titreJour.appendChild(eventDiv);
+        });
+
+        semaineDiv.appendChild(titreJour);
+    }
+
+    if (semaineDiv) liste.appendChild(semaineDiv);
+}
+// Nouvelle fonction pour afficher un formulaire d'inscription
+async function ouvrirFormulaireInscription(dateStr) {
+    // Récupérer les événements du jour
+    const events = await getEvenements(dateStr);
+
+    // Créer la modale
+    const modal = document.createElement("div");
+    modal.style.position = "fixed";
+    modal.style.top = "50%";
+    modal.style.left = "50%";
+    modal.style.transform = "translate(-50%, -50%)";
+    modal.style.background = "white";
+    modal.style.padding = "20px";
+    modal.style.border = "1px solid black";
+    modal.style.zIndex = 10000;
+    modal.style.borderRadius = "8px";
+    modal.style.width = "300px";
+    modal.style.maxHeight = "80vh";
+    modal.style.overflowY = "auto";
+    modal.style.boxShadow = "0 0 10px rgba(0,0,0,0.5)";
+
+    const titre = document.createElement("h3");
+    titre.textContent = "Inscription aux événements du " + formatDateLong(dateStr);
+    modal.appendChild(titre);
+
+    if(events.length === 0) {
+        const aucun = document.createElement("p");
+        aucun.textContent = "Aucun événement ce jour.";
+        modal.appendChild(aucun);
+    } else {
+        // Liste des événements
+        events.forEach(ev => {
+            const evDiv = document.createElement("div");
+            evDiv.style.marginBottom = "10px";
+
+            const evTitre = document.createElement("strong");
+            evTitre.textContent = ev.heure + " - " + ev.nom;
+            evDiv.appendChild(evTitre);
+
+            // Formulaire d'inscription par événement
+            const form = document.createElement("form");
+            form.style.marginTop = "5px";
+
+            // Nom
+            const inputNom = document.createElement("input");
+            inputNom.type = "text";
+            inputNom.name = "Nom";
+            inputNom.placeholder = "Nom";
+            inputNom.required = true;
+            inputNom.style.width = "100%";
+            inputNom.style.marginBottom = "5px";
+            form.appendChild(inputNom);
+
+            // Prénom
+            const inputPrenom = document.createElement("input");
+            inputPrenom.type = "text";
+            inputPrenom.name = "Prenom";
+            inputPrenom.placeholder = "Prénom";
+            inputPrenom.required = true;
+            inputPrenom.style.width = "100%";
+            inputPrenom.style.marginBottom = "5px";
+            form.appendChild(inputPrenom);
+
+            // Email
+            const inputEmail = document.createElement("input");
+            inputEmail.type = "email";
+            inputEmail.name = "Email";
+            inputEmail.placeholder = "Email";
+            inputEmail.required = true;
+            inputEmail.style.width = "100%";
+            inputEmail.style.marginBottom = "5px";
+            form.appendChild(inputEmail);
+
+            // Téléphone
+            const inputTel = document.createElement("input");
+            inputTel.type = "tel";
+            inputTel.name = "tel";
+            inputTel.placeholder = "Téléphone";
+            inputTel.style.width = "100%";
+            inputTel.style.marginBottom = "5px";
+            form.appendChild(inputTel);
+
+            // Nombre de participants
+            const inputNumber = document.createElement("input");
+            inputNumber.type = "number";
+            inputNumber.name = "number";
+            inputNumber.min = 1;
+            inputNumber.value = 1;
+            inputNumber.style.width = "100%";
+            inputNumber.style.marginBottom = "5px";
+            form.appendChild(inputNumber);
+
+            // Bouton submit
+            const submitBtn = document.createElement("button");
+            submitBtn.type = "submit";
+            submitBtn.textContent = "S'inscrire";
+            submitBtn.style.width = "100%";
+            submitBtn.style.padding = "5px";
+            submitBtn.style.backgroundColor = "green";
+            submitBtn.style.color = "white";
+            submitBtn.style.border = "none";
+            submitBtn.style.borderRadius = "5px";
+            form.appendChild(submitBtn);
+
+            // Gestion du submit
+            form.onsubmit = async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+
+            // Ajouter l'id de l'événement dans formData
+            formData.append('evenement_id', ev.id);
+            formData.append('action', 'inscription'); // pour savoir qu'on traite une inscription
+
+            const response = await fetch('', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                alert("Inscription enregistrée pour " + ev.nom + " à " + ev.heure);
+                document.body.removeChild(modal);
+            } else {
+                alert("Erreur lors de l'inscription : " + result.error);
+            }
+        };
+
+            evDiv.appendChild(form);
+            modal.appendChild(evDiv);
+        });
+    }
+
+    // Bouton fermer
+    const btnFermer = document.createElement("button");
+    btnFermer.textContent = "Fermer";
+    btnFermer.style.marginTop = "10px";
+    btnFermer.style.width = "100%";
+    btnFermer.style.padding = "5px";
+    btnFermer.style.backgroundColor = "red";
+    btnFermer.style.color = "white";
+    btnFermer.style.border = "none";
+    btnFermer.style.borderRadius = "5px";
+    btnFermer.onclick = () => {
+        document.body.removeChild(modal);
+    };
+    modal.appendChild(btnFermer);
+
+    document.body.appendChild(modal);
+}
+
+// Initialisation
+afficherAgendaFinal();
+
 </script>
 </body>
 </html>
