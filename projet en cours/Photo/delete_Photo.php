@@ -16,7 +16,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             elseif ($_POST['action'] === 'delete_publication' && isset($_POST['post_id'])) {
                 $postId = $_POST['post_id'];
-                $stmt = $conn->prepare("DELETE FROM photo WHERE Parent_ID = ?");
+                $stmt = $conn->prepare("DELETE FROM photo WHERE id_parent = ?");
+                $stmt->bind_param("i", $postId);
+                $stmt->execute();
+                 $stmt = $conn->prepare("DELETE FROM parent_photo WHERE id_parent = ?");
                 $stmt->bind_param("i", $postId);
                 $stmt->execute();
                 
