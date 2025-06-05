@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -38,6 +37,7 @@
             border-radius: 10px;
             position: relative;
             width: calc(100vw - 334px);
+            
         }
 
         .carousel-track {
@@ -46,9 +46,8 @@
         }
 
         .carousel-slide {
-            min-width: calc(100% / 3);
             height: 300px;
-            display: flex;
+         /*   display: flex;  retiré*/
             justify-content: center;
             align-items: center;
             background-size: cover;
@@ -56,7 +55,7 @@
         }
 
         .carousel-slide img {
-            width: 100%;
+           /* width: 100%; retiré*/
             height: 100%;
             object-fit: cover;
             border-radius: 10px;
@@ -78,10 +77,11 @@
 
         .carousel-button.prev {
             left: 10px;
+
         }
 
         .carousel-button.next {
-            right: 10px;
+            right: 100px;
         }
 
         .switch-carousel-button {
@@ -99,7 +99,7 @@
         }
 
         .delete-photo {
-            top: -45%;
+            bottom: 100%; /* modifier*/
             background-color: rgba(255, 0, 0, 0.8);
             color: white;
             border: none;
@@ -112,13 +112,13 @@
             align-items: center;
             font-size: 16px;
             z-index: 10;
-            right: 10%;
+            left: 90%;  /* modifier*/
             position: relative;
         }
 
         .delete-poste {
-            top: -12%;
-            left: 94%;
+            top: -25%;
+            left: 97%;
             background-color: rgba(255, 0, 0, 0.8);
             color: white;
             border: none;
@@ -140,46 +140,112 @@
             transform: scale(0.9);
             transition: all 0.3s ease;
         }
-    </style>
-</head>
 
+        .btn-ajouter-publication {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 10%;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .btn-ajouter-photo {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .Bouton-droit-alignement{
+            margin-bottom: 6%;
+            margin-right: 0.5%;
+            margin-left: 0.5%;
+        }
+
+        /* nouveau */
+        .fnd_gris{
+            background-color: rgba(186, 230, 228, 0.76);
+            display: inline-block;
+        padding: 0 10px; /* pour un peu d'espace autour du texte */
+        }
+
+      </style>
+</head>
 <body>
     <?php
+    require_once("connexion_bd.php");
     $Admin = isset($_SESSION['admin']) && $_SESSION['admin'] === true;
-    $Admin = true; // vérification admin manuelle
+    $Admin = true; // Test manuel
     ?>
     <?php include("entete.php"); ?>
     <div class="page">
         <?php include("menu.php"); ?>
-        <button class="switch-carousel-button prev">&#10094;</button>
-        <div class="carousel-wrapper">
+        <div class="Bouton-droit-alignement">   
+            <?php if ($Admin): ?>
+        <button id="btnAjouterPublication" class="btn-ajouter-publication">Ajout publication</button>
+<?php endif; ?>
+            <button class="switch-carousel-button prev">&#10094;</button>
+        </div>
+<div class="carousel-wrapper">
+            <div class="publication-header"></div>
             <div class="carousel-container">
-                <?php for ($i = 1; $i <= 4; $i++) { ?>
-                    <div class="carousel">
-                        <h2>Publication <?php echo $i; ?></h2>
-                        <?php if ($Admin): ?>
-                            <button class="delete-poste" data-pub="<?php echo $i; ?>">×</button>
-                        <?php endif; ?>
-                        <div class="carousel-track">
-                            <?php for ($j = 1; $j <= 10; $j++) { ?>
-                                <div class="carousel-slide">
-                                    <img src="images/test.jpg" alt="Image <?php echo $j; ?>">
-                                    <?php if ($Admin): ?>
-                                        <button class="delete-photo" data-img="<?php echo $j; ?>">×</button>
-                                    <?php endif; ?>
-                                </div>
-                            <?php } ?>
-                        </div>
-                        <button class="carousel-button prev">&#10094;</button>
-                        <button class="carousel-button next">&#10095;</button>
+
+                <?php
+                $sql = "SELECT photo.*, parent_photo.parent_nom 
+                        FROM photo 
+                        INNER JOIN parent_photo ON photo.id_parent = parent_photo.id_parent 
+                        ORDER BY photo.id_parent ASC, photo.Id_Photo ASC";
+                $result = $conn->query($sql);
+                $publications = [];
+
+                while ($row = $result->fetch_assoc()) {
+                    $idParent = $row['id_parent'];
+                    if (!isset($publications[$idParent])) {
+                        $publications[$idParent] = [
+                            'titre' => $row['parent_nom'],
+                            'images' => []
+                        ];
+                    }
+                    $publications[$idParent]['images'][] = $row;
+                }
+
+                foreach ($publications as $idParent => $data) {
+                    $titrePost = $data['titre'];
+                    $images = $data['images']; 
+                ?>
+                <div class="carousel" data-carousel-id="carousel-<?php echo $idParent; ?>">
+                    <div>
+                        <h2 class="fnd_gris"><?php echo htmlspecialchars($titrePost); ?></h2>
                     </div>
+                    <?php if ($Admin): ?>
+                        <button class="btn-ajouter-photo" 
+                                onclick="showUploadModal(<?php echo $idParent; ?>, 'carousel-<?php echo $idParent; ?>')">
+                            Ajouter photo
+                        </button>
+                    <?php endif; ?>
+                    <div class="carousel-track">
+                        <?php foreach ($images as $image) { ?>
+                            <div class="carousel-slide">
+                                <img src="<?php echo $image['Photo_Photo']; ?>" alt="Image">
+                                <?php if ($Admin): ?>
+                                    <button class="delete-photo" data-photo-id="<?php echo $image['Id_Photo']; ?>">×</button>
+                                <?php endif; ?>
+                            </div>
+                        <?php } ?>
+                    </div>
+                    <button class="carousel-button prev">&#10094;</button>
+                    <button class="carousel-button next">&#10095;</button>
+                </div>
                 <?php } ?>
             </div>
         </div>
-
         <button class="switch-carousel-button next">&#10095;</button>
     </div>
     <?php include("pied_de_page.php"); ?>
+    <?php include("upload_modal.php"); ?>
     <script>
         const carouselContainer2 = document.querySelector('.carousel-container');
         const carousels = Array.from(carouselContainer2.children);
@@ -230,35 +296,118 @@
             updateTrack();
         });
 
-          // Suppression des éléments
-          document.querySelectorAll('.delete-photo').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const photoId = this.dataset.photoId;
-                const photoElement = this.closest('.carousel-slide');
-                
-                if (confirm('Supprimer cette photo ?')) {
+// Suppression des photos
+document.querySelectorAll('.delete-photo').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const photoId = this.dataset.photoId;
+        const photoElement = this.closest('.carousel-slide');
+        
+        if (confirm('Supprimer cette photo ?')) {
+            fetch('delete_photo.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `action=delete_photo&photo_id=${photoId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
                     photoElement.classList.add('fade-out');
                     setTimeout(() => photoElement.remove(), 300);
-                    console.log(`Photo ${photoId} supprimée (simulation)`);
+                    
+                    // Mettre à jour l'index du carrousel si nécessaire
+                    updateCarouselState();
+                } else {
+                    alert('Erreur lors de la suppression: ' + (data.error || 'Erreur inconnue'));
                 }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Erreur lors de la suppression');
             });
-        });
+        }
+    });
+});
 
-        document.querySelectorAll('.delete-poste').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const postId = this.dataset.postId;
-                const postElement = this.closest('.carousel');
-                
-                if (confirm('Supprimer toute la publication ?')) {
+// Suppression des publications
+document.querySelectorAll('.delete-poste').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const postId = this.dataset.postId;
+        const postElement = this.closest('.carousel');
+        
+        if (confirm('Supprimer toute la publication ?')) {
+            fetch('delete_photo.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `action=delete_publication&post_id=${postId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
                     postElement.classList.add('fade-out');
                     setTimeout(() => postElement.remove(), 300);
-                    console.log(`Publication ${postId} supprimée (simulation)`);
+                    
+                    // Mettre à jour le carrousel principal
+                    updateCarouselDisplay();
+                } else {
+                    alert('Erreur lors de la suppression: ' + (data.error || 'Erreur inconnue'));
                 }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Erreur lors de la suppression');
             });
-        });
+        }
+    });
+});
+
+// Fonction pour mettre à jour l'état du carrousel après suppression
+function updateCarouselState() {
+    allCarousels.forEach(carousel => {
+        const track = carousel.querySelector('.carousel-track');
+        const slides = Array.from(track.children);
+        if (slides.length === 0) {
+            carousel.remove();
+        }
+    });
+    updateCarouselDisplay();
+}
+
+
+
 
         updateCarouselDisplay();
+function showUploadModal(publicationId, carouselId) {
+            document.getElementById('modal-publication-id').value = publicationId;
+            document.getElementById('upload-modal').dataset.carouselId = carouselId;
+            document.getElementById('upload-modal').style.display = 'block';
+        }
+
+        // Quand on clique sur "Ajout publication"
+document.getElementById('btnAjouterPublication').addEventListener('click', function () {
+    document.getElementById('modal-publication-id').value = ""; // Nouvelle publication
+    document.getElementById('modal-publication-title').value = ""; // Champ titre vide
+    document.getElementById('upload-modal').style.display = 'block';
+});
+
+// Quand on clique sur "Ajouter photo" pour une publication existante
+function showUploadModal(publicationId, carouselId) {
+    document.getElementById('modal-publication-id').value = publicationId;
+    
+    // Cherche le titre dans la page (si besoin)
+    const carousel = document.querySelector(`[data-carousel-id="${carouselId}"]`);
+    const titreElement = carousel.querySelector('h2');
+    const titreTexte = titreElement ? titreElement.textContent.trim() : '';
+
+    document.getElementById('modal-publication-title').value = titreTexte;
+    document.getElementById('upload-modal').dataset.carouselId = carouselId;
+    document.getElementById('upload-modal').style.display = 'block';
+}
+
+
     </script>
 </body>
-
-</html> 
+</html>
