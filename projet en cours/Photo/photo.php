@@ -117,8 +117,8 @@
         }
 
         .delete-poste {
-            top: -25%;
-            left: 97%;
+            top: 5%;
+            left: 87%;
             background-color: rgba(255, 0, 0, 0.8);
             color: white;
             border: none;
@@ -217,6 +217,9 @@
                     $images = $data['images']; 
                 ?>
                 <div class="carousel" data-carousel-id="carousel-<?php echo $idParent; ?>">
+    <?php if ($Admin): ?>
+        <button class="delete-poste" data-post-id="<?php echo $idParent; ?>">×</button>
+    <?php endif; ?>
                     <div>
                         <h2 class="fnd_gris"><?php echo htmlspecialchars($titrePost); ?></h2>
                     </div>
