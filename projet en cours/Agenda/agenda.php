@@ -1,8 +1,8 @@
 <?php
-
+$bdd = mysqli_connect('localhost', 'root', '', 'users');
+mysqli_set_charset($bdd, "utf8");
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'inscription') {
-    $bdd = mysqli_connect('localhost', 'root', '', 'users');
-    mysqli_set_charset($bdd, "utf8");
+
 
     // Récupérer et sécuriser les données
     $evenement_id = intval($_POST['evenement_id']);
@@ -20,10 +20,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
     exit;
 }
-
-// Connexion base de données
-$bdd = mysqli_connect('localhost', 'root', '', 'users');
-mysqli_set_charset($bdd, "utf8");
 
 // Gestion de la partie API REST interne pour les événements
 if (isset($_GET['api']) && $_GET['api'] === 'evenements') {
@@ -73,7 +69,25 @@ if (isset($_GET['api']) && $_GET['api'] === 'evenements') {
     }
 
 }
+if (isset($_GET['api']) && $_GET['api'] === 'inscrits' && isset($_GET['evenement_id'])) {
+    header('Content-Type: application/json');
+    $evenement_id = intval($_GET['evenement_id']);
+    
+    $result = mysqli_query($bdd, "SELECT nom, prenom, email, tel, nombre_participants FROM inscriptions WHERE evenement_id=$evenement_id");
+    $inscrits = [];
+    $totalParticipants = 0;
 
+    while ($row = mysqli_fetch_assoc($result)) {
+        $inscrits[] = $row;
+        $totalParticipants += intval($row['nombre_participants']);
+    }
+
+    echo json_encode([
+        'total' => $totalParticipants,
+        'inscrits' => $inscrits
+    ]);
+    exit;
+}
 
 
 ?>
@@ -254,7 +268,7 @@ if (isset($_GET['api']) && $_GET['api'] === 'evenements') {
 
 <script>
 const isAdmin = <?php echo isset($_COOKIE['isAdmin']) && $_COOKIE['isAdmin'] === "1" ? 'true' : 'false'; ?>;
-//const isAdmin = true;
+        
 
 const agendaJourDiv = document.getElementById("agenda-jour");
 const agendaJournee = document.getElementById("agenda-journee");
@@ -305,6 +319,8 @@ async function ouvrirAgendaJour(dateStr) {
        return; 
     }
     
+
+    
     document.getElementById("agenda-final").classList.add("hidden");
     agendaJourDiv.classList.remove("hidden");
     jourTitre.textContent = "Agenda du " + formatDateLong(dateStr);
@@ -328,7 +344,86 @@ async function ouvrirAgendaJour(dateStr) {
             const eventDiv = document.createElement("div");
             eventDiv.className = "event";
             eventDiv.textContent = event.nom;
-            
+              if (isAdmin) {
+        const btnVoirInscrits = document.createElement("button");
+        btnVoirInscrits.textContent = "Voir inscrits";
+        btnVoirInscrits.style.marginLeft = "10px";
+        btnVoirInscrits.style.fontSize = "12px";
+        btnVoirInscrits.style.padding = "2px 5px";
+        btnVoirInscrits.style.cursor = "pointer";
+
+        btnVoirInscrits.onclick = async (e) => {
+            e.stopPropagation();
+
+            // Récupérer la liste des inscrits via API
+            const res = await fetch(`?api=inscrits&evenement_id=${event.id}`);
+            const data = await res.json();
+
+            // Créer modale pour afficher les inscrits
+            const modal = document.createElement("div");
+            modal.style.position = "fixed";
+            modal.style.top = "50%";
+            modal.style.left = "50%";
+            modal.style.transform = "translate(-50%, -50%)";
+            modal.style.background = "white";
+            modal.style.padding = "20px";
+            modal.style.border = "1px solid black";
+            modal.style.zIndex = 10001;
+            modal.style.borderRadius = "8px";
+            modal.style.maxHeight = "80vh";
+            modal.style.overflowY = "auto";
+            modal.style.width = "400px";
+
+            const titre = document.createElement("h3");
+            titre.textContent = `Inscrits à "${event.nom}" (${event.heure}) - Total: ${data.total}`;
+            modal.appendChild(titre);
+
+            if (data.inscrits.length === 0) {
+                const p = document.createElement("p");
+                p.textContent = "Aucun inscrit pour cet événement.";
+                modal.appendChild(p);
+            } else {
+                const table = document.createElement("table");
+                table.style.width = "100%";
+                table.style.borderCollapse = "collapse";
+
+                const trHead = document.createElement("tr");
+                ["Nom", "Prénom", "Email", "Téléphone", "Nb participants"].forEach(headerText => {
+                    const th = document.createElement("th");
+                    th.textContent = headerText;
+                    th.style.border = "1px solid #ddd";
+                    th.style.padding = "5px";
+                    th.style.textAlign = "left";
+                    trHead.appendChild(th);
+                });
+                table.appendChild(trHead);
+
+                data.inscrits.forEach(inscrit => {
+                    const tr = document.createElement("tr");
+                    ["nom", "prenom", "email", "tel", "nombre_participants"].forEach(field => {
+                        const td = document.createElement("td");
+                        td.textContent = inscrit[field];
+                        td.style.border = "1px solid #ddd";
+                        td.style.padding = "5px";
+                        tr.appendChild(td);
+                    });
+                    table.appendChild(tr);
+                });
+
+                modal.appendChild(table);
+            }
+
+            const btnClose = document.createElement("button");
+            btnClose.textContent = "Fermer";
+            btnClose.style.marginTop = "10px";
+            btnClose.onclick = () => document.body.removeChild(modal);
+            modal.appendChild(btnClose);
+
+            document.body.appendChild(modal);
+        };
+
+        eventDiv.appendChild(btnVoirInscrits);
+    }
             // Bouton supprimer
             if (isAdmin) {
                 const btnDelete = document.createElement("button");
@@ -371,60 +466,71 @@ async function ouvrirAgendaJour(dateStr) {
             eventCell.appendChild(eventDiv);
         }
 
-        eventCell.addEventListener("click", () => {
-            if (!isAdmin) return;
+       eventCell.addEventListener("click", () => {
+    if (!isAdmin) return;
 
-            const select = document.createElement("select");
-            ["BALADES", "COURS", "STAGES"].forEach(opt => {
-                const option = document.createElement("option");
-                option.value = opt;
-                option.textContent = opt;
-                select.appendChild(option);
-            });
+    const select = document.createElement("select");
+    ["BALADES", "COURS", "STAGES"].forEach(opt => {
+        const option = document.createElement("option");
+        option.value = opt;
+        option.textContent = opt;
+        select.appendChild(option);
+    });
 
-            const confirmation = document.createElement("div");
-            confirmation.style.position = "fixed";
-            confirmation.style.top = "50%";
-            confirmation.style.left = "50%";
-            confirmation.style.transform = "translate(-50%, -50%)";
-            confirmation.style.background = "white";
-            confirmation.style.padding = "20px";
-            confirmation.style.border = "1px solid black";
-            confirmation.style.zIndex = 1000;
-            confirmation.style.textAlign = "center";
-            confirmation.style.borderRadius = "8px";
-            confirmation.style.boxShadow = "0 0 10px rgba(0,0,0,0.5)";
+    const inputPerso = document.createElement("input");
+    inputPerso.type = "text";
+    inputPerso.placeholder = "Ou saisissez un nom personnalisé";
+    inputPerso.style.display = "block";
+    inputPerso.style.marginTop = "10px";
+    inputPerso.style.width = "100%";
 
-            const label = document.createElement("label");
-            label.textContent = "Choisissez le type d'événement :";
-            label.style.display = "block";
-            label.style.marginBottom = "10px";
+    const confirmation = document.createElement("div");
+    confirmation.style.position = "fixed";
+    confirmation.style.top = "50%";
+    confirmation.style.left = "50%";
+    confirmation.style.transform = "translate(-50%, -50%)";
+    confirmation.style.background = "white";
+    confirmation.style.padding = "20px";
+    confirmation.style.border = "1px solid black";
+    confirmation.style.zIndex = "1000";
+    confirmation.style.textAlign = "center";
+    confirmation.style.borderRadius = "8px";
+    confirmation.style.boxShadow = "0 0 10px rgba(0,0,0,0.5)";
+    confirmation.style.width = "300px";
 
-            const boutonValider = document.createElement("button");
-            boutonValider.textContent = "Valider";
-            boutonValider.style.marginTop = "10px";
-            boutonValider.style.padding = "5px 10px";
-            boutonValider.style.backgroundColor = "blue";
-            boutonValider.style.color = "white";
-            boutonValider.style.border = "none";
-            boutonValider.style.borderRadius = "5px";
-            boutonValider.style.cursor = "pointer";
-            boutonValider.onclick = async () => {
-            const eventName = select.value;
-            const success = await saveEvenement(dateStr, eventCell.dataset.time, eventName);
-            if(success) {
-                window.location.reload();
-            } else {
-                alert("Erreur lors de la sauvegarde.");
-            }
-            document.body.removeChild(confirmation);
-            };
+    const label = document.createElement("label");
+    label.textContent = "Choisissez le type d'événement ou saisissez un nom :";
+    label.style.display = "block";
+    label.style.marginBottom = "10px";
 
-            confirmation.appendChild(label);
-            confirmation.appendChild(select);
-            confirmation.appendChild(boutonValider);
-            document.body.appendChild(confirmation);
-        });
+    const boutonValider = document.createElement("button");
+    boutonValider.textContent = "Valider";
+    boutonValider.style.marginTop = "15px";
+    boutonValider.style.padding = "5px 10px";
+    boutonValider.style.backgroundColor = "blue";
+    boutonValider.style.color = "white";
+    boutonValider.style.border = "none";
+    boutonValider.style.borderRadius = "5px";
+    boutonValider.style.cursor = "pointer";
+
+    boutonValider.onclick = async () => {
+        const eventName = inputPerso.value.trim() !== "" ? inputPerso.value.trim() : select.value;
+        const success = await saveEvenement(dateStr, eventCell.dataset.time, eventName);
+        if (success) {
+            window.location.reload();
+        } else {
+            alert("Erreur lors de la sauvegarde.");
+        }
+        document.body.removeChild(confirmation);
+    };
+
+    confirmation.appendChild(label);
+    confirmation.appendChild(select);
+    confirmation.appendChild(inputPerso);
+    confirmation.appendChild(boutonValider);
+    document.body.appendChild(confirmation);
+});
+
 
         agendaJournee.appendChild(eventCell);
     }
