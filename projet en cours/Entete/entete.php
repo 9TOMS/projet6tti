@@ -31,7 +31,7 @@ if (!mysqli_set_charset($connexion, "utf8")) {
                 
                     if ($mdp == $verifmdp) {
                         $hashSecure = password_hash(PREFIX_SALT . $mdp . SUFFIX_SALT, PASSWORD_DEFAULT); 
-                        $insert_query = "INSERT INTO `membre`(`ID_Membre`, `Enfant`, `Nom_Membre`, `Prenom_Membre`, `Anniversaire_Membre`, `Nom_parent_Membre`, `Prenom_parent_Membre`, `Telephone_Membre`, `Mail_Membre`, `Comment_decouvert`, `Condition_Membre`, `Mot_de_passe_Membre`, `Affilie_Membre`, `administrateur`) 
+                        $insert_query = "INSERT INTO `membre`(`ID_Membre`, `Enfant`, `Nom_Membre`, `Prenom_Membre`, `Anniversaire_Membre`, `Nom_parent_Membre`, `Prenom_parent_Membre`, `Telephone_Membre`, `Mail_Membre`, `Comment_decouvert`, `Condition_Membre`, `Mot_de_passe_Membre`, `Affilie_Membre`, `admin`) 
                         VALUES (NULL, TRUE, '$nom', '$prenom', '$age', '$parentname', '$parentsurname', '$phone', '$mail', '$entenduparler', '$Condition', '$hashSecure', FALSE, FALSE)";
                         
                         $result = mysqli_query($connexion, $insert_query);
@@ -62,7 +62,7 @@ if (!mysqli_set_charset($connexion, "utf8")) {
                 
                     if ($mdp == $verifmdp) {
                         $hashSecure = password_hash(PREFIX_SALT . $mdp . SUFFIX_SALT, PASSWORD_DEFAULT); 
-                        $insert_query = "INSERT INTO `membre`(`ID_Membre`, `Enfant`, `Nom_Membre`, `Prenom_Membre`, `Anniversaire_Membre`, `Nom_parent_Membre`, `Prenom_parent_Membre`, `Telephone_Membre`, `Mail_Membre`, `Comment_decouvert`, `Condition_Membre`, `Mot_de_passe_Membre`, `Affilie_Membre`, `administrateur`) 
+                        $insert_query = "INSERT INTO `membre`(`ID_Membre`, `Enfant`, `Nom_Membre`, `Prenom_Membre`, `Anniversaire_Membre`, `Nom_parent_Membre`, `Prenom_parent_Membre`, `Telephone_Membre`, `Mail_Membre`, `Comment_decouvert`, `Condition_Membre`, `Mot_de_passe_Membre`, `Affilie_Membre`, `admin`) 
                         VALUES (NULL, TRUE, '$nom', '$prenom', '$age', NULL, NULL, '$phone', '$mail', '$entenduparler', '$Condition', '$hashSecure', FALSE, FALSE)";
                         
                         $result = mysqli_query($connexion, $insert_query);
@@ -80,27 +80,62 @@ if (!mysqli_set_charset($connexion, "utf8")) {
                     }
                 }
 
-                if (isset($_POST['togglebutton3'])) {
+                
                     
+
+                                   
+                if (isset($_POST['togglebutton3'])) {
+                    session_start(); // Toujours au début avant toute sortie
+
+                    // Sécurisation des entrées
                     $mail = mysqli_real_escape_string($connexion, $_POST['email']);
                     $mdp = mysqli_real_escape_string($connexion, $_POST['password']);
-                    $hashSecure = password_hash(PREFIX_SALT . $mdp . SUFFIX_SALT, PASSWORD_DEFAULT); 
+                    $mdp_salte = PREFIX_SALT . $mdp . SUFFIX_SALT;
 
-                    $select_query = "SELECT `Mail_Membre`, `Mot_de_passe_Membre` FROM `membre` WHERE `Mail_Membre` LIKE '$mail' AND `Mot_de_passe_Membre` LIKE  '$hashSecure'";
-                    $result = mysqli_query($connexion, $select_query);
-                    if ($result) {
-                        echo "Connexion réussie.";
-                        $connecte=True;
-                        session_start();
-                        setcookie( 'mail', $mail, time() + 90*24*3600, null, false, true);
-                        setcookie( 'mdp', $hashSecure, time() + 90*24*3600, null, false, true);
+                    // Requête SQL combinée
+                    $sql = "SELECT `Mot_de_passe_Membre`, `Mail_Membre`, `admin` FROM `membre` WHERE `Mail_Membre` = '$mail'";
+
+                    $result = mysqli_query($connexion, $sql);
+
+                    if ($result && mysqli_num_rows($result) == 1) {
+                        $row = mysqli_fetch_assoc($result);
+                        $hashpassword = $row['Mot_de_passe_Membre'];
+                        $mailv = $row['Mail_Membre'];
+                        $isadmin = $row['admin'];
+
+                        // Vérification du mot de passe
+                        if (password_verify($mdp_salte, $hashpassword)) {
+                            if ($isadmin == '1') {
+                                echo "Connexion admin réussie. " . htmlspecialchars($mail);
+                                $connecte = true;
+                                $_SESSION['admin'] = $mail;
+
+                                setcookie('admin', $mail, time() + 90*24*3600, '/', '', false, true);
+
+                                // Tu peux stocker $isadmin aussi si nécessaire :
+                                // $_SESSION['admin'] = $isadmin;
+                            }else if ($isadmin == '0'){
+                                echo "Connexion réussie. " . htmlspecialchars($isadmin);
+                                $connecte = true;
+                                $_SESSION['mail'] = $mail;
+
+                                setcookie('mail', $mail, time() + 90*24*3600, '/', '', false, true);
+
+                                // Tu peux stocker $isadmin aussi si nécessaire :
+                                // $_SESSION['admin'] = $isadmin;
+                            }
+                            
+                        } else {
+                            echo "Erreur de connexion : mot de passe incorrect.";
+                            $connecte = false;
+                        }
                     } else {
-                        echo "Erreur de connexion : " . mysqli_error($connexion);
-                        $connecte=false;
+                        echo "Erreur de connexion : utilisateur non trouvé.";
+                        $connecte = false;
                     }
-                    
-                    //include 'entete2.php';
-                    //return;   
+
+
+
                     
                 }
 
@@ -186,6 +221,12 @@ if (!mysqli_set_charset($connexion, "utf8")) {
     </div>
 </div>
     </div> 
+
+
+
+
+
+
 
 
 
