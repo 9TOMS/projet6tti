@@ -31,7 +31,7 @@ if (!mysqli_set_charset($connexion, "utf8")) {
                 
                     if ($mdp == $verifmdp) {
                         $hashSecure = password_hash(PREFIX_SALT . $mdp . SUFFIX_SALT, PASSWORD_DEFAULT); 
-                        $insert_query = "INSERT INTO `membre`(`ID_Membre`, `Enfant`, `Nom_Membre`, `Prenom_Membre`, `Anniversaire_Membre`, `Nom_parent_Membre`, `Prenom_parent_Membre`, `Telephone_Membre`, `Mail_Membre`, `Comment_decouvert`, `Condition_Membre`, `Mot_de_passe_Membre`, `Affilie_Membre`, `admin`) 
+                        $insert_query = "INSERT INTO `membre`(`ID_Membre`, `Enfant`, `Nom_Membre`, `Prenom_Membre`, `Anniversaire_Membre`, `Nom_parent_Membre`, `Prenom_parent_Membre`, `Telephone_Membre`, `Mail_Membre`, `Comment_decouvert`, `Condition_Membre`, `Mot_de_passe_Membre`, `Affilie_Membre`, `administrateur`) 
                         VALUES (NULL, TRUE, '$nom', '$prenom', '$age', '$parentname', '$parentsurname', '$phone', '$mail', '$entenduparler', '$Condition', '$hashSecure', FALSE, FALSE)";
                         
                         $result = mysqli_query($connexion, $insert_query);
@@ -62,7 +62,7 @@ if (!mysqli_set_charset($connexion, "utf8")) {
                 
                     if ($mdp == $verifmdp) {
                         $hashSecure = password_hash(PREFIX_SALT . $mdp . SUFFIX_SALT, PASSWORD_DEFAULT); 
-                        $insert_query = "INSERT INTO `membre`(`ID_Membre`, `Enfant`, `Nom_Membre`, `Prenom_Membre`, `Anniversaire_Membre`, `Nom_parent_Membre`, `Prenom_parent_Membre`, `Telephone_Membre`, `Mail_Membre`, `Comment_decouvert`, `Condition_Membre`, `Mot_de_passe_Membre`, `Affilie_Membre`, `admin`) 
+                        $insert_query = "INSERT INTO `membre`(`ID_Membre`, `Enfant`, `Nom_Membre`, `Prenom_Membre`, `Anniversaire_Membre`, `Nom_parent_Membre`, `Prenom_parent_Membre`, `Telephone_Membre`, `Mail_Membre`, `Comment_decouvert`, `Condition_Membre`, `Mot_de_passe_Membre`, `Affilie_Membre`, `administrateur`) 
                         VALUES (NULL, TRUE, '$nom', '$prenom', '$age', NULL, NULL, '$phone', '$mail', '$entenduparler', '$Condition', '$hashSecure', FALSE, FALSE)";
                         
                         $result = mysqli_query($connexion, $insert_query);
@@ -93,7 +93,7 @@ if (!mysqli_set_charset($connexion, "utf8")) {
                     $mdp_salte = PREFIX_SALT . $mdp . SUFFIX_SALT;
 
                     // Requête SQL combinée
-                    $sql = "SELECT `Mot_de_passe_Membre`, `Mail_Membre`, `admin` FROM `membre` WHERE `Mail_Membre` = '$mail'";
+                    $sql = "SELECT `Mot_de_passe_Membre`, `Mail_Membre`, `administrateur` FROM `membre` WHERE `Mail_Membre` = '$mail'";
 
                     $result = mysqli_query($connexion, $sql);
 
@@ -101,16 +101,16 @@ if (!mysqli_set_charset($connexion, "utf8")) {
                         $row = mysqli_fetch_assoc($result);
                         $hashpassword = $row['Mot_de_passe_Membre'];
                         $mailv = $row['Mail_Membre'];
-                        $isadmin = $row['admin'];
+                        $isadmin = $row['administrateur'];
 
                         // Vérification du mot de passe
                         if (password_verify($mdp_salte, $hashpassword)) {
                             if ($isadmin == '1') {
                                 echo "Connexion admin réussie. " . htmlspecialchars($mail);
                                 $connecte = true;
-                                $_SESSION['admin'] = $mail;
+                                $_SESSION['administrateur'] = $mail;
 
-                                setcookie('admin', $mail, time() + 90*24*3600, '/', '', false, true);
+                                setcookie('administrateur', $mail, time() + 90*24*3600, '/', '', false, true);
 
                                 // Tu peux stocker $isadmin aussi si nécessaire :
                                 // $_SESSION['admin'] = $isadmin;
@@ -221,6 +221,7 @@ if (!mysqli_set_charset($connexion, "utf8")) {
     </div>
 </div>
     </div> 
+
 
 
 
