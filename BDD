@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1:3306
--- Généré le : ven. 06 juin 2025 à 06:21
+-- Généré le : ven. 06 juin 2025 à 06:37
 -- Version du serveur : 8.3.0
 -- Version de PHP : 8.2.18
 
@@ -49,10 +49,10 @@ CREATE TABLE IF NOT EXISTS `commentaires_news` (
   `Id_Commentaire` int NOT NULL AUTO_INCREMENT,
   `Id_News` int NOT NULL,
   `Id_Membre` int NOT NULL,
-  `Contenu_Commentaire` text NOT NULL,
+  `Contenu_Commentaire` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
   `Date_Commentaire` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`Id_Commentaire`)
-) ENGINE=InnoDB AUTO_INCREMENT=129 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=129 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Déchargement des données de la table `commentaires_news`
@@ -88,10 +88,10 @@ DROP TABLE IF EXISTS `evenements`;
 CREATE TABLE IF NOT EXISTS `evenements` (
   `id` int NOT NULL AUTO_INCREMENT,
   `date` date NOT NULL,
-  `heure` varchar(5) NOT NULL,
-  `nom` varchar(255) NOT NULL,
+  `heure` varchar(5) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nom` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Déchargement des données de la table `evenements`
@@ -113,14 +113,14 @@ DROP TABLE IF EXISTS `inscriptions`;
 CREATE TABLE IF NOT EXISTS `inscriptions` (
   `id` int NOT NULL AUTO_INCREMENT,
   `evenement_id` int NOT NULL,
-  `nom` varchar(255) NOT NULL,
-  `prenom` varchar(255) NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `tel` varchar(20) DEFAULT NULL,
+  `nom` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `prenom` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tel` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `nombre_participants` int DEFAULT '1',
   `date_inscription` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Déchargement des données de la table `inscriptions`
@@ -148,7 +148,7 @@ CREATE TABLE IF NOT EXISTS `likes_news` (
   `id_news` int NOT NULL,
   `id_membre` int NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Déchargement des données de la table `likes_news`
@@ -229,6 +229,28 @@ CREATE TABLE IF NOT EXISTS `note` (
 -- --------------------------------------------------------
 
 --
+-- Structure de la table `parent_photo`
+--
+
+DROP TABLE IF EXISTS `parent_photo`;
+CREATE TABLE IF NOT EXISTS `parent_photo` (
+  `id_parent` int NOT NULL AUTO_INCREMENT,
+  `parent_nom` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`id_parent`)
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Déchargement des données de la table `parent_photo`
+--
+
+INSERT INTO `parent_photo` (`id_parent`, `parent_nom`) VALUES
+(1, 'Balade test'),
+(2, 'Balade 2'),
+(3, 'Tour des cheveaux');
+
+-- --------------------------------------------------------
+
+--
 -- Structure de la table `photo`
 --
 
@@ -236,9 +258,35 @@ DROP TABLE IF EXISTS `photo`;
 CREATE TABLE IF NOT EXISTS `photo` (
   `Id_Photo` int NOT NULL AUTO_INCREMENT,
   `Photo_Photo` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `Utilisation_Photo` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id_parent` int NOT NULL,
   PRIMARY KEY (`Id_Photo`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=113 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Déchargement des données de la table `photo`
+--
+
+INSERT INTO `photo` (`Id_Photo`, `Photo_Photo`, `id_parent`) VALUES
+(1, 'images/test.jpg', 1),
+(8, 'images/test.jpg', 2),
+(3, 'images/fa.jpg', 1),
+(4, 'images/ma.jpg', 1),
+(5, 'images/test.jpg', 1),
+(6, 'images/fa.jpg', 1),
+(7, 'images/ma.jpg', 1),
+(9, 'images/fa.jpg', 2),
+(10, 'images/ma.jpg', 2),
+(11, 'images/test.jpg', 2),
+(12, 'images/fa.jpg', 2),
+(13, 'images/ma.jpg', 2),
+(14, 'images/test.jpg', 3),
+(15, 'images/fa.jpg', 3),
+(16, 'images/ma.jpg', 3),
+(17, 'images/test.jpg', 3),
+(18, 'images/fa.jpg', 3),
+(19, 'images/ma.jpg', 3),
+(107, 'images/6839a004f0282_Capture d\'écran 2024-03-08 124353.png', 1),
+(85, 'images/683057fa5c0e9_Capture d\'écran 2024-01-04 175707.png', 2);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
