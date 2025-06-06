@@ -36,7 +36,7 @@
             border: 2px solid black;
             border-radius: 10px;
             position: relative;
-            width: calc(100vw - 334px);
+            width: calc(100vw - 260px);
             
         }
 
@@ -164,6 +164,9 @@
             margin-right: 0.5%;
             margin-left: 0.5%;
         }
+        .Bouton-gauche-alignement{
+            position: absolute;
+        }
 
         /* nouveau */
         .fnd_gris{
@@ -184,11 +187,13 @@
     <div class="page">
         <?php include("menu.php"); ?>
         <div class="Bouton-droit-alignement">   
-            <?php if ($Admin): ?>
+            <button class="switch-carousel-button prev">&#10094;</button>
+        </div>   
+        
+          <container>
+             <?php if ($Admin): ?>
         <button id="btnAjouterPublication" class="btn-ajouter-publication">Ajout publication</button>
 <?php endif; ?>
-            <button class="switch-carousel-button prev">&#10094;</button>
-        </div>
 <div class="carousel-wrapper">
             <div class="publication-header"></div>
             <div class="carousel-container">
@@ -238,14 +243,20 @@
                                 <?php endif; ?>
                             </div>
                         <?php } ?>
+                         
+                        </container>
                     </div>
                     <button class="carousel-button prev">&#10094;</button>
                     <button class="carousel-button next">&#10095;</button>
                 </div>
-                <?php } ?>
-            </div>
+                <?php } ?> 
+                  <div class="Bouton-gauche-alignement">
+             <button class="switch-carousel-button next">&#10095;</button>
         </div>
-        <button class="switch-carousel-button next">&#10095;</button>
+            </div>
+         
+        </div>
+       
     </div>
     <?php include("pied_de_page.php"); ?>
     <?php include("upload_modal.php"); ?>
