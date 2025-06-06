@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1:3306
--- Généré le : ven. 23 mai 2025 à 11:20
+-- Généré le : ven. 06 juin 2025 à 06:21
 -- Version du serveur : 8.3.0
 -- Version de PHP : 8.2.18
 
@@ -81,6 +81,64 @@ INSERT INTO `commentaires_news` (`Id_Commentaire`, `Id_News`, `Id_Membre`, `Cont
 -- --------------------------------------------------------
 
 --
+-- Structure de la table `evenements`
+--
+
+DROP TABLE IF EXISTS `evenements`;
+CREATE TABLE IF NOT EXISTS `evenements` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `date` date NOT NULL,
+  `heure` varchar(5) NOT NULL,
+  `nom` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Déchargement des données de la table `evenements`
+--
+
+INSERT INTO `evenements` (`id`, `date`, `heure`, `nom`) VALUES
+(16, '2025-06-30', '16:00', 'BALADES'),
+(2, '2025-06-30', '16:00', 'BALADES'),
+(18, '2025-06-23', '11:00', 'TEST DDDD'),
+(15, '2025-06-23', '14:00', 'COURS');
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `inscriptions`
+--
+
+DROP TABLE IF EXISTS `inscriptions`;
+CREATE TABLE IF NOT EXISTS `inscriptions` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `evenement_id` int NOT NULL,
+  `nom` varchar(255) NOT NULL,
+  `prenom` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `tel` varchar(20) DEFAULT NULL,
+  `nombre_participants` int DEFAULT '1',
+  `date_inscription` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Déchargement des données de la table `inscriptions`
+--
+
+INSERT INTO `inscriptions` (`id`, `evenement_id`, `nom`, `prenom`, `email`, `tel`, `nombre_participants`, `date_inscription`) VALUES
+(1, 10, 'Schrobiltgen', 'Tom', 'tomschrob@g', '047', 2, '2025-06-04 18:57:14'),
+(2, 10, 'Schrobiltgen', 'Tom', 'tomschrobi@gmail.com', '0473236327', 1, '2025-06-04 18:59:50'),
+(3, 1, 'Schrobiltgen', 'Tom', 'tomschrobi@gmail.com', '0473236327', 1, '2025-06-04 19:00:57'),
+(4, 1, 'Schrobiltgen', 'Tom', 'tomschrobi@gmail.com', '0473236327', 1, '2025-06-04 19:09:55'),
+(5, 1, 'Schrobiltgen', 'Tom', 'tomschrobi@gmail.com', '0473236327', 1, '2025-06-04 21:04:59'),
+(6, 15, 'Schrobiltgen', 'Tom', 'tomschrobi@gmail.com', '0473236327', 3, '2025-06-05 09:18:13'),
+(7, 15, 'Schrobiltgen', 'Tom', 'tomschrobi@gmail.com', '0473236327', 4, '2025-06-05 09:21:18'),
+(8, 15, 'Schrobiltgen', 'Tom', 'tomschrobi@gmail.com', '0473236327', 1, '2025-06-05 13:16:08');
+
+-- --------------------------------------------------------
+
+--
 -- Structure de la table `likes_news`
 --
 
@@ -135,7 +193,6 @@ CREATE TABLE IF NOT EXISTS `membre` (
 DROP TABLE IF EXISTS `news`;
 CREATE TABLE IF NOT EXISTS `news` (
   `Id_News` int NOT NULL AUTO_INCREMENT,
-  `Reaction_News` int NOT NULL,
   `Info_News` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `Photo_News` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `Date_News` date NOT NULL,
@@ -146,13 +203,13 @@ CREATE TABLE IF NOT EXISTS `news` (
 -- Déchargement des données de la table `news`
 --
 
-INSERT INTO `news` (`Id_News`, `Reaction_News`, `Info_News`, `Photo_News`, `Date_News`) VALUES
-(1, 1, 'Sortie de printemps', 'https://docs.google.com/presentation/d/e/2PACX-1vSsTfyAcvRMMUWh7KA4Xs7k6VaVcRl24WzFCcfLKtDLyPj-aW_nYdGWXMSlBLVl-ymFm3sjO5mQ4Q8S/pub?start=false&loop=false&delayms=60000', '2012-01-25'),
-(2, 1, 'sortie 2', 'https://docs.google.com/presentation/d/e/2PACX-1vQR-voCW_clRl9FKrItZBA3r9u2dfS3R4k8S39gHbWCqNQgnHPFzqlKJugdMWN0WaPJpNCO9qDxGCKn/pub?start=false&loop=false&delayms=3000', '2025-04-04'),
-(3, 1, 'sortie 2', 'https://docs.google.com/presentation/d/e/2PACX-1vS_c8F3J4Kof6KhA1U8R7BDJ_bT-N9xqUjWlA4O4oqSpy3NpUqwZuHydjZRoDXyUSczBsMOHY9AZfCI/pub?start=false&loop=false&delayms=3000', '2025-04-04'),
-(4, 1, 'sortie 2', 'https://docs.google.com/presentation/d/e/2PACX-1vQq9WhE3FDyiFnn6a6GXUihDtTkQ4N4nwMlF5ws2jpCYHPfTbFu30KF_6aPPJDZ3bZ2XXdICcAsvP4v/pub?start=false&loop=false&delayms=3000', '2025-04-04'),
-(6, 1, 'SORTIE 3', 'https://docs.google.com/presentation/d/e/2PACX-1vTFCZHGpEnNlH0S7HIFXRH1AVWWhW5qCF38R4wIvXPyV6GqIFVe9bN9FKKD85RHnQI53HNRdzYdzPE7/pub?start=false&loop=false&delayms=3000', '2025-05-04'),
-(7, 1, 'Sortie 5', 'https://docs.google.com/presentation/d/e/2PACX-1vSRGoPz3r1Fml9rj_H4E1wCS7-Qd95tmNZHOylPulNaAL9DrcL8lRcDLrjKiGhNiv3_dynlttknUKoD/pub?start=false&loop=false&delayms=3000', '2025-02-23');
+INSERT INTO `news` (`Id_News`, `Info_News`, `Photo_News`, `Date_News`) VALUES
+(1, 'Sortie de printemps', 'https://docs.google.com/presentation/d/e/2PACX-1vSsTfyAcvRMMUWh7KA4Xs7k6VaVcRl24WzFCcfLKtDLyPj-aW_nYdGWXMSlBLVl-ymFm3sjO5mQ4Q8S/pub?start=false&loop=false&delayms=60000', '2012-01-25'),
+(2, 'sortie 2', 'https://docs.google.com/presentation/d/e/2PACX-1vQR-voCW_clRl9FKrItZBA3r9u2dfS3R4k8S39gHbWCqNQgnHPFzqlKJugdMWN0WaPJpNCO9qDxGCKn/pub?start=false&loop=false&delayms=3000', '2025-04-04'),
+(3, 'sortie 2', 'https://docs.google.com/presentation/d/e/2PACX-1vS_c8F3J4Kof6KhA1U8R7BDJ_bT-N9xqUjWlA4O4oqSpy3NpUqwZuHydjZRoDXyUSczBsMOHY9AZfCI/pub?start=false&loop=false&delayms=3000', '2025-04-04'),
+(4, 'sortie 2', 'https://docs.google.com/presentation/d/e/2PACX-1vQq9WhE3FDyiFnn6a6GXUihDtTkQ4N4nwMlF5ws2jpCYHPfTbFu30KF_6aPPJDZ3bZ2XXdICcAsvP4v/pub?start=false&loop=false&delayms=3000', '2025-04-04'),
+(6, 'SORTIE 3', 'https://docs.google.com/presentation/d/e/2PACX-1vTFCZHGpEnNlH0S7HIFXRH1AVWWhW5qCF38R4wIvXPyV6GqIFVe9bN9FKKD85RHnQI53HNRdzYdzPE7/pub?start=false&loop=false&delayms=3000', '2025-05-04'),
+(7, 'Sortie 5', 'https://docs.google.com/presentation/d/e/2PACX-1vSRGoPz3r1Fml9rj_H4E1wCS7-Qd95tmNZHOylPulNaAL9DrcL8lRcDLrjKiGhNiv3_dynlttknUKoD/pub?start=false&loop=false&delayms=3000', '2025-02-23');
 
 -- --------------------------------------------------------
 
@@ -187,4 +244,3 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-
