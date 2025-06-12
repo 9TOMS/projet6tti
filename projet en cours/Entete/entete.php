@@ -1,127 +1,234 @@
 <?php
-// Connexion à la base de données
+ob_start();
 $connexion = mysqli_connect('localhost', 'root', '', 'crepuscule');
-if (!$connexion) {
-    die("Erreur de connexion à la base de données: " . mysqli_connect_error());
+
+if (!mysqli_set_charset($connexion, "utf8")) {
+    echo "Erreur lors du chargement du jeu de caractères utf8 : ", mysqli_error($connexion);
+    exit();
 }
-mysqli_set_charset($connexion, "utf8");
 
-// Constantes de salage
-define('PREFIX_SALT', 'ççaaaa111222333');
-define('SUFFIX_SALT', 'ççbbbb444555666');
+      
+            //session_start();
+            ob_start(); // optionnel, utile pour éviter les erreurs d'envoi prématuré
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $formType = $_POST['form-type'] ?? '';
+        define('PREFIX_SALT', 'ççaaaa111222333');
+        define('SUFFIX_SALT', 'ççbbbb444555666');
 
-    switch ($formType) {
-        case 'enfant':
-            $nom = mysqli_real_escape_string($connexion, $_POST['name']);
-            $prenom = mysqli_real_escape_string($connexion, $_POST['surname']);
-            $age = mysqli_real_escape_string($connexion, $_POST['Age']);
-            $parentname = mysqli_real_escape_string($connexion, $_POST['parentname']);
-            $parentsurname = mysqli_real_escape_string($connexion, $_POST['parentsurname']);
-            $Condition = mysqli_real_escape_string($connexion, $_POST['Condition']);
-            $entenduparler = mysqli_real_escape_string($connexion, $_POST['entenduparler']);
-            $mail = mysqli_real_escape_string($connexion, $_POST['email']);
-            $phone = mysqli_real_escape_string($connexion, $_POST['phone']);
-            $mdp = mysqli_real_escape_string($connexion, $_POST['password']);
-            $verifmdp = mysqli_real_escape_string($connexion, $_POST['passwordverif']);
-            $sexe = mysqli_real_escape_string($connexion, $_POST['sexe']);
+        $connecte = false;
+        
 
-            if ($mdp === $verifmdp) {
-                $hashSecure = password_hash(PREFIX_SALT . $mdp . SUFFIX_SALT, PASSWORD_DEFAULT);
-                $insert_query = "INSERT INTO `membre`(`ID_Membre`, `Enfant`, `Nom_Membre`, `Prenom_Membre`, `Anniversaire_Membre`, `Nom_parent_Membre`, `Prenom_parent_Membre`, `Telephone_Membre`, `Mail_Membre`, `Comment_decouvert`, `Condition_Membre`, `Mot_de_passe_Membre`, `Affilie_Membre`, `administrateur`) 
-                                 VALUES (NULL, TRUE, '$nom', '$prenom', '$age', '$parentname', '$parentsurname', '$phone', '$mail', '$entenduparler', '$Condition', '$hashSecure', FALSE, FALSE)";
-                $result = mysqli_query($connexion, $insert_query);
-                if ($result) {
-                    echo "<div class='success'>Inscription enfant réussie.</div>";
-                    session_start();
-                    setcookie('mail', $mail, time() + 90*24*3600, '/', '', false, true);
-                    setcookie('mdp', $hashSecure, time() + 90*24*3600, '/', '', false, true);
-                } else {
-                    echo "<div class='error'>Erreur d'insertion : " . mysqli_error($connexion) . "</div>";
-                }
-            } else {
-                echo "<div class='error'>Les mots de passe ne correspondent pas.</div>";
-            }
-            break;
+        if (isset($_COOKIE['mail']) && isset($_COOKIE['mdp']))  {
+            $mdp = $_COOKIE['mdp'];
+            $mailuti = $_COOKIE['mail'];
+            $mdp_salte = PREFIX_SALT . $_COOKIE['adminmdp'] . SUFFIX_SALT;
+                    // Requête SQL combinée
+                    $sql = "SELECT `Mot_de_passe_Membre`, `Mail_Membre`, `administrateur` FROM `membre` WHERE `Mail_Membre` = '$mailuti'";
 
-        case 'adulte':
-            $nom = mysqli_real_escape_string($connexion, $_POST['name']);
-            $prenom = mysqli_real_escape_string($connexion, $_POST['surname']);
-            $age = mysqli_real_escape_string($connexion, $_POST['Age']);
-            $Condition = mysqli_real_escape_string($connexion, $_POST['Condition']);
-            $entenduparler = mysqli_real_escape_string($connexion, $_POST['entenduparler']);
-            $mail = mysqli_real_escape_string($connexion, $_POST['email']);
-            $phone = mysqli_real_escape_string($connexion, $_POST['phone']);
-            $mdp = mysqli_real_escape_string($connexion, $_POST['password']);
-            $verifmdp = mysqli_real_escape_string($connexion, $_POST['passwordverif']);
-            $sexe = mysqli_real_escape_string($connexion, $_POST['sexe']);
+                    $result = mysqli_query($connexion, $sql);
 
-            if ($mdp === $verifmdp) {
-                $hashSecure = password_hash(PREFIX_SALT . $mdp . SUFFIX_SALT, PASSWORD_DEFAULT);
-                $insert_query = "INSERT INTO `membre`(`ID_Membre`, `Enfant`, `Nom_Membre`, `Prenom_Membre`, `Anniversaire_Membre`, `Nom_parent_Membre`, `Prenom_parent_Membre`, `Telephone_Membre`, `Mail_Membre`, `Comment_decouvert`, `Condition_Membre`, `Mot_de_passe_Membre`, `Affilie_Membre`, `administrateur`) 
-                                 VALUES (NULL, FALSE, '$nom', '$prenom', '$age', NULL, NULL, '$phone', '$mail', '$entenduparler', '$Condition', '$hashSecure', FALSE, FALSE)";
-                $result = mysqli_query($connexion, $insert_query);
-                if ($result) {
-                    echo "<div class='success'>Inscription adulte réussie.</div>";
-                    session_start();
-                    setcookie('mail', $mail, time() + 90*24*3600, '/', '', false, true);
-                    setcookie('mdp', $hashSecure, time() + 90*24*3600, '/', '', false, true);
-                } else {
-                    echo "<div class='error'>Erreur d'insertion : " . mysqli_error($connexion) . "</div>";
-                }
-            } else {
-                echo "<div class='error'>Les mots de passe ne correspondent pas.</div>";
-            }
-            break;
+                    if ($result && mysqli_num_rows($result) == 1) {
+                        $row = mysqli_fetch_assoc($result);
+                        $hashpassword = $row['Mot_de_passe_Membre'];
+                        $mailv = $row['Mail_Membre'];
+                        $isadmin = $row['administrateur'];
 
-        case 'connexion':
-            session_start();
-            $mail = mysqli_real_escape_string($connexion, $_POST['email']);
-            $mdp = mysqli_real_escape_string($connexion, $_POST['password']);
-            $mdp_salte = PREFIX_SALT . $mdp . SUFFIX_SALT;
+                        // Vérification du mot de passe
+                        if (password_verify($mdp_salte, $hashpassword)) {
+                            
+                                
+                                $connecte = true;
+                                $_SESSION['utilisateur'] = $mail;
+                                echo "Connexion réussie. " . htmlspecialchars($mail);
+                                 $administrateur = false;
 
-            $sql = "SELECT `Mot_de_passe_Membre`, `Mail_Membre`, `administrateur` FROM `membre` WHERE `Mail_Membre` = '$mail'";
-            $result = mysqli_query($connexion, $sql);
+                                // Tu peux stocker $isadmin aussi si nécessaire :
+                                // $_SESSION['admin'] = $isadmin;
+                            }
+                            
+                        } 
+                    } 
 
-            if ($result && mysqli_num_rows($result) == 1) {
-                $row = mysqli_fetch_assoc($result);
-                $hashpassword = $row['Mot_de_passe_Membre'];
-                $isadmin = $row['administrateur'];
+                if (isset($_COOKIE['administrateur']) && isset($_COOKIE['adminmdp']))  {
+                    $mdp_salte = PREFIX_SALT . $_COOKIE['adminmdp'] . SUFFIX_SALT;
+                    $mailuti = $_COOKIE['administrateur'];
 
-                if (password_verify($mdp_salte, $hashpassword)) {
-                    if ($isadmin == '1') {
-                        echo "<div class='success'>Connexion admin réussie.</div>";
-                        $_SESSION['administrateur'] = $mail;
-                        setcookie('administrateur', $mail, time() + 90*24*3600, '/', '', false, true);
+                            // Requête SQL combinée
+                            $sql = "SELECT `Mot_de_passe_Membre`, `Mail_Membre`, `administrateur` FROM `membre` WHERE `Mail_Membre` = '$mailuti'";
+
+                            $result = mysqli_query($connexion, $sql);
+
+                            if ($result && mysqli_num_rows($result) == 1) {
+                                $row = mysqli_fetch_assoc($result);
+                                $hashpassword = $row['Mot_de_passe_Membre'];
+                                $mailv = $row['Mail_Membre'];
+                                $isadmin = $row['administrateur'];
+
+                                // Vérification du mot de passe
+                                if (password_verify($mdp_salte, $hashpassword)) {
+                                    
+                                        
+                                        $connecte = true;
+                                        $_SESSION['utilisateur'] = $mail;
+                                        echo "Connexion admin réussie. " . htmlspecialchars($mail);
+                                        $administrateur = true;
+
+                                        // Tu peux stocker $isadmin aussi si nécessaire :
+                                        // $_SESSION['admin'] = $isadmin;
+                                    }
+                                    
+                                } 
+                            } 
+
+
+
+                    if (isset($_POST['togglebutton1'])) {
+                    $nom = mysqli_real_escape_string($connexion, $_POST['name']);
+                    $prenom = mysqli_real_escape_string($connexion, $_POST['surname']);
+                    $age = mysqli_real_escape_string($connexion, $_POST['Age']);
+                    $parentname = mysqli_real_escape_string($connexion, $_POST['parentname']);
+                    $parentsurname = mysqli_real_escape_string($connexion, $_POST['parentsurname']);
+                    $Condition = mysqli_real_escape_string($connexion, $_POST['Condition']);
+                    $entenduparler = mysqli_real_escape_string($connexion, $_POST['entenduparler']);
+                    $mail = mysqli_real_escape_string($connexion, $_POST['email']);
+                    $phone = mysqli_real_escape_string($connexion, $_POST['phone']);
+                    $mdp = mysqli_real_escape_string($connexion, $_POST['password']);
+                    $verifmdp = mysqli_real_escape_string($connexion, $_POST['passwordverif']); 
+                    $sexe = mysqli_real_escape_string($connexion, $_POST['sexe']);
+                
+                    if ($mdp == $verifmdp) {
+                        $hashSecure = password_hash(PREFIX_SALT . $mdp . SUFFIX_SALT, PASSWORD_DEFAULT); 
+                        $insert_query = "INSERT INTO `membre`(`ID_Membre`, `Enfant`, `Nom_Membre`, `Prenom_Membre`, `Anniversaire_Membre`, `Nom_parent_Membre`, `Prenom_parent_Membre`, `Telephone_Membre`, `Mail_Membre`, `Comment_decouvert`, `Condition_Membre`, `Mot_de_passe_Membre`, `Affilie_Membre`, `administrateur`) 
+                        VALUES (NULL, TRUE, '$nom', '$prenom', '$age', '$parentname', '$parentsurname', '$phone', '$mail', '$entenduparler', '$Condition', '$hashSecure', FALSE, FALSE)";
+                        
+                        $result = mysqli_query($connexion, $insert_query);
+                        if ($result) {
+                            echo "Insertion réussie.";
+                        } else {
+                            echo "Erreur d'insertion : " . mysqli_error($connexion);
+                        }
+
+                         $administrateur = false;
+
+                        setcookie('mailuser', $mail, time() + 90*24*3600, '/', '', false, true);
+                                setcookie('mdpuser', $mdp, time() + 90*24*3600, '/', '', false, true);
                     } else {
-                        echo "<div class='success'>Connexion réussie.</div>";
-                        $_SESSION['mail'] = $mail;
-                        setcookie('mail', $mail, time() + 90*24*3600, '/', '', false, true);
+                        echo "Les mots de passe ne correspondent pas.";
                     }
-                } else {
-                    echo "<div class='error'>Mot de passe incorrect.</div>";
                 }
-            } else {
-                echo "<div class='error'>Utilisateur non trouvé.</div>";
-            }
-            break;
+                if (isset($_POST['togglebutton2'])) {
+                    $nom = mysqli_real_escape_string($connexion, $_POST['name']);
+                    $prenom = mysqli_real_escape_string($connexion, $_POST['surname']);
+                    $age = mysqli_real_escape_string($connexion, $_POST['Age']);
+                    $Condition = mysqli_real_escape_string($connexion, $_POST['Condition']);
+                    $entenduparler = mysqli_real_escape_string($connexion, $_POST['entenduparler']);
+                    $mail = mysqli_real_escape_string($connexion, $_POST['email']);
+                    $phone = mysqli_real_escape_string($connexion, $_POST['phone']);
+                    $mdp = mysqli_real_escape_string($connexion, $_POST['password']);
+                    $verifmdp = mysqli_real_escape_string($connexion, $_POST['passwordverif']); 
+                    $sexe = mysqli_real_escape_string($connexion, $_POST['sexe']);
+                
+                    if ($mdp == $verifmdp) {
+                        $hashSecure = password_hash(PREFIX_SALT . $mdp . SUFFIX_SALT, PASSWORD_DEFAULT); 
+                        $insert_query = "INSERT INTO `membre`(`ID_Membre`, `Enfant`, `Nom_Membre`, `Prenom_Membre`, `Anniversaire_Membre`, `Nom_parent_Membre`, `Prenom_parent_Membre`, `Telephone_Membre`, `Mail_Membre`, `Comment_decouvert`, `Condition_Membre`, `Mot_de_passe_Membre`, `Affilie_Membre`, `administrateur`) 
+                        VALUES (NULL, TRUE, '$nom', '$prenom', '$age', NULL, NULL, '$phone', '$mail', '$entenduparler', '$Condition', '$hashSecure', FALSE, FALSE)";
+                        
+                        $result = mysqli_query($connexion, $insert_query);
+                        if ($result) {
+                            echo "Insertion réussie.";
+                        } else {
+                            echo "Erreur d'insertion : " . mysqli_error($connexion);
+                        }
 
-        default:
-            echo "<div class='error'>Type de formulaire inconnu.</div>";
-    }
-}
+                        
+                            setcookie('mailuser', $mail, time() + 90*24*3600, '/', '', false, true);
+                                setcookie('mdpuser', $mdp, time() + 90*24*3600, '/', '', false, true);
+                             $administrateur = false;
+
+                            echo "Insertion réussie."; // DOIT venir après les setcookie
+
+                    } else {
+                        echo "Les mots de passe ne correspondent pas.";
+                    }
+                }
+
+                
+                    
+
+                                   
+                if (isset($_POST['togglebutton3'])) {
+                    
+
+                    // Sécurisation des entrées
+                    $mail = mysqli_real_escape_string($connexion, $_POST['email']);
+                    $mdp = mysqli_real_escape_string($connexion, $_POST['password']);
+                    $mdp_salte = PREFIX_SALT . $mdp . SUFFIX_SALT;
+
+                    // Requête SQL combinée
+                    $sql = "SELECT `Mot_de_passe_Membre`, `Mail_Membre`, `administrateur` FROM `membre` WHERE `Mail_Membre` = '$mail'";
+
+                    $result = mysqli_query($connexion, $sql);
+
+                    if ($result && mysqli_num_rows($result) == 1) {
+                        $row = mysqli_fetch_assoc($result);
+                        $hashpassword = $row['Mot_de_passe_Membre'];
+                        $mailv = $row['Mail_Membre'];
+                        $isadmin = $row['administrateur'];
+
+                        // Vérification du mot de passe
+                        if (password_verify($mdp_salte, $hashpassword)) {
+                            if ($isadmin == TRUE) {
+                               
+                                $connecte = true;
+                                $_SESSION['administrateur'] = $mail;
+                                 $administrateur = true;
+
+                                
+                                setcookie('administrateur', $mail, time() + 90*24*3600, '/', '', false, true);
+                                setcookie('adminmdp', $mdp, time() + 90*24*3600, '/', '', false, true);
+                                echo "Connexion admin réussie. " . htmlspecialchars($mail);
+                                // Tu peux stocker $isadmin aussi si nécessaire :
+                                // $_SESSION['admin'] = $isadmin;
+                            }else if ($isadmin == FALSE){
+                                
+                                $connecte = true;
+                                $admin = false;
+                                $_SESSION['utilisateur'] = $mail;
+
+                                setcookie('mailuser', $mail, time() + 90*24*3600, '/', '', false, true);
+                                setcookie('mdpuser', $mdp, time() + 90*24*3600, '/', '', false, true);
+                                echo "Connexion réussie. " . htmlspecialchars($isadmin);
+                                // Tu peux stocker $isadmin aussi si nécessaire :
+                                // $_SESSION['admin'] = $isadmin;
+                            }
+                            
+                        } else {
+                            echo "Erreur de connexion : mot de passe incorrect.";
+                            $connecte = false;
+                        }
+                    } else {
+                        echo "Erreur de connexion : utilisateur non trouvé.";
+                        $connecte = false;
+                    }
+
+
+
+                    
+                }
+
+                              
+
+    
+
+
+        
+
+            
+            
+         
+            
+
 ?>
-
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="main.css">
-    <title>Crépuscule - Club Équestre</title>
-    <style>
+<style>
         /* Styles de base */
         body {
             font-family: Arial, sans-serif;
@@ -276,38 +383,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin: 10px 0;
         }
     </style>
-</head>
-<body>
-    <div id="tete">
-        <div id="logo">
-            <img id="logo1" src="images/logo.png" alt="Logo Crépuscule">
+<div id="entete">
+    <link rel="stylesheet" href="main.css">
+    <script defer src="java.js"></script>
+    <div id="logo_entete">
+        <input class="menu2" id="image1" type="button" value=":" onclick="openNav()">
+        <a href="index.php"><img id="img_logo" src="images/logo.png"></a>
+        <div id="mySidenav" class="sidenav">
+            <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+            <a href="index.php">Accueil </a>
+            <a href="news.php">News </a>
+            <a href="photo.php">Photos </a>
+            <a href="contact.php">Contact </a>
+            <a href="agenda.php">Agenda </a>
+            <a href="tarif.php">Tarif </a>
         </div>
-        <div id="centre">
-            <div id="nom">
-                <h1>Crépuscule</h1>
-            </div>
-            <div id="citation">
-                <h2>
-                    <span class="survole">Respect,
-                        <span class="moment-survole">Respect des autres membres du club, des moniteurs et responsables, des consignes, du matériel et des infrastructures mais aussi et surtout des chevaux.</span>
-                    </span>
-                    <span class="survole">Confiance,
-                        <span class="moment-survole">Oser essayer augmenter sa confiance en soi. Le cheval vous fera alors confiance car il est comme votre reflet dans un miroir.</span>
-                    </span>
-                    <span class="survole">Solidarité,
-                        <span class="moment-survole">Entraide partage échange de ses compétences et savoirs pour aider les autres.</span>
-                    </span>
-                    <span class="survole">Sécurité,
-                        <span class="moment-survole">Prendre du plaisir dans les activités tout en respectant.</span>
-                    </span>
-                </h2>
-            </div>
-        </div>
-        <div id="inscription">
-            <img alt="Cliquez ici" onclick="openPopup()" id="inscription1" src="images/profil.png"/>
-        </div>  
     </div>
-    
+    <div id="titre_entete">
+        <div id="titre_nom">Crépuscule</div>
+        <div id="titre_citation">
+            <span class="info_bulle_entete">Respect,
+                <span class="info_bulle_entete-text">Respect des autres membres du club, des moniteurs et responsables,
+                    des consignes, du matériel et des infrastructures mais aussi et surtout des chevaux.</span>
+            </span>
+            <span class="info_bulle_entete">Confiance,
+                <span class="info_bulle_entete-text">Oser essayer augmenter sa confiance en soi. Le cheval vous fera
+                    alors confiance car il est comme votre reflet dans un miroir.</span>
+            </span>
+            <span class="info_bulle_entete">Solidarité,
+                <span class="info_bulle_entete-text">Entraide partage échange de ses compétences et savoirs pour aider
+                    les autres.</span>
+            </span>
+            <span class="info_bulle_entete">Sécurité
+                <span class="info_bulle_entete-text">Prendre du plaisir dans les activités tout en respectant.</span>
+            </span>
+        </div>
+    </div>
+    <div id="inscription_entete">
+        <img alt="Cliquez ici" onclick="openPopup()" id="img_inscription" src="images/profil.png" />
+    </div>
     <div id="popup" class="popup">
         <div class="popup-content">
             <span class="close-btn" onclick="closePopup()">&times;</span>
@@ -327,6 +441,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </form>
         </div>
     </div>
+</div>
 
     <script>
         // Fonction pour ouvrir le pop-up
@@ -521,6 +636,266 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             document.getElementById('toggle-button-2').removeAttribute('name');
             document.getElementById('toggle-button-2').setAttribute('onclick', 'inscription()');
         }
+
+        // Fonction pour ouvrir le pop-up
+function openPopup() {
+    const popup = document.getElementById('popup');
+    popup.style.display = 'flex'; // Affiche le pop-up
+}
+
+// Fonction pour fermer le pop-up
+function closePopup() {
+    const popup = document.getElementById('popup');
+    popup.style.display = 'none'; // Cache le pop-up
+}
+
+// Optionnel : Fermer le pop-up en cliquant à l'extérieur
+window.addEventListener('click', (e) => {
+    const popup = document.getElementById('popup');
+    if (e.target === popup) {
+        popup.style.display = 'none';
+    }
+});
+
+
+
+
+
+
+
+function inscriptionenfant() {
+    // Change the title
+    document.getElementById('form-title').innerText = 'Formulaire d\'inscription de l\'enfant';
+
+    // Show name fields
+
+    document.getElementById('info-kids-fields').style.display = 'grid';
+
+    document.getElementById('info-parents-fields').style.display = 'grid' ;
+
+    document.getElementById('info-person-fields').style.display = 'none' ;
+
+    document.getElementById('info-kids-fields').innerHTML= `
+                    <div>
+                        <label for="name">Nom de l'enfant :</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div>
+                        <label for="surname">Prénom de l'enfant :</label>
+                        <input type="text" id="surname" name="surname" required>
+                    </div>
+                        
+
+                    <div>
+                        <label for="Age">Date de naissance de l'enfant :</label>
+                        <input type="date" id="Age" name="Age" required>    
+                    </div>
+                     
+                    <div>
+                        <label for="sexe">sexe de l'enfant :</label>
+                        <input type="text" id="sexe" name="sexe" maxlength="1" required>  
+                    </div>
+`;
+
+    document.getElementById('info-parents-fields').innerHTML = `<div>
+    <label for="parentname">Nom du parent :</label>
+<input type="text" id="parentname" name="parentname" required>
+</div>
+
+<div>
+    <label for="parentsurname">Prénom du parent :</label>
+    <input type="text" id="parentsurname" name="parentsurname" required>
+</div>
+
+
+<div>
+    <label for="phone">Numéro de téléphone :</label>
+    <input type="tel" id="phone" name="phone" required>  
+</div>
+
+<div>
+    <label for="email">Email :</label>
+    <input type="email" id="email" name="email" required> 
+</div>`;
+
+    document.getElementById('info-fields').innerHTML = `<label for="entenduparler">Comment avez-vous entendu parler de nous ? :</label>
+    <input type="text" id="entenduparler" name="entenduparler" required>
+
+    <label for="Condition">Condition médicale (vaccin, groupe sanguin, asthme, allergies, ...) :</label>
+    <input type="text" id="Condition" name="Condition" required>`;
+
+    document.getElementById('password-fields').style.display = ' grid' ;
+
+    // Restore email and password fields to include verification
+    document.getElementById('password-fields').innerHTML = `
+    <div>
+        <label for="password">Mot de passe :</label>
+        <input id="password" name="password" required> 
+    </div>
+
+    <div>
+        <label for="passwordverif">Vérification du Mot de passe :</label>
+        <input id="passwordverif" name="passwordverif" required> 
+    </div>
+    `;
+
+    var boutonpop1 = document.getElementById('toggle-button-1');
+    boutonpop1.setAttribute('onclick', '');
+    boutonpop1.setAttribute('name', 'togglebutton1');
+
+    var boutonpop2 = document.getElementById('toggle-button-2');
+    boutonpop2.setAttribute('onclick', 'inscription()');
+    boutonpop2.setAttribute('name', '');
+
+    var boutonpop3 = document.getElementById('toggle-button-3');
+    boutonpop3.setAttribute('onclick', 'connexion()');
+    boutonpop3.setAttribute('name', '');
+    
+}
+
+
+function inscription() {
+    // Change the title
+    document.getElementById('form-title').innerText = 'Formulaire d\'inscription de l\'enfant';
+
+    // Show name fields
+    document.getElementById('info-kids-fields').style.display = 'none';
+    document.getElementById('info-parents-fields').style.display = 'none';
+
+    document.getElementById('info-person-fields').style.display = 'grid';
+
+    document.getElementById('info-person-fields').innerHTML = `<div>
+    <label for="name">Nom :</label>
+<input type="text" id="name" name="name" required>
+</div>
+
+<div>
+    <label for="surname">Prénom :</label>
+    <input type="text" id="surname" name="surname" required>
+</div>
+
+<div>
+                        <label for="Age">Date de naissance de l'enfant :</label>
+                        <input type="date" id="Age" name="Age" required>    
+                    </div>
+                     
+                    <div>
+                        <label for="sexe">sexe de l'enfant :</label>
+                        <input type="text" id="sexe" name="sexe" maxlength="1" required>  
+                    </div>
+
+
+<div>
+    <label for="phone">Numéro de téléphone :</label>
+    <input type="tel" id="phone" name="phone" required>  
+</div>
+
+<div>
+    <label for="email">Email :</label>
+    <input type="email" id="email" name="email" required> 
+</div>`;
+
+    document.getElementById('info-fields').innerHTML = `
+
+    
+    <label for="entenduparler">Comment avez-vous entendu parler de nous ? :</label>
+    <input type="text" id="entenduparler" name="entenduparler" required>
+
+    <label for="Condition">Condition médicale (vaccin, groupe sanguin, asthme, allergies, ...) :</label>
+    <input type="text" id="Condition" name="Condition" required>`;
+
+    document.getElementById('password-fields').style.display = ' grid' ;
+
+    // Restore email and password fields to include verification
+    document.getElementById('password-fields').innerHTML = `
+    <div>
+        <label for="password">Mot de passe :</label>
+        <input id="password" name="password" required> 
+    </div>
+
+    <div>
+        <label for="passwordverif">Vérification du Mot de passe :</label>
+        <input id="passwordverif" name="passwordverif" required> 
+    </div>
+    `;
+
+    
+
+
+    // Change the toggle button to switch back to login
+
+    
+
+    var boutonpop2 = document.getElementById('toggle-button-2');
+    boutonpop2.setAttribute('onclick', '');
+    boutonpop2.setAttribute('name', 'togglebutton2');
+
+
+    var boutonpop1 = document.getElementById('toggle-button-1');
+    boutonpop1.setAttribute('onclick', 'inscriptionenfant()');
+    boutonpop1.setAttribute('name', '');
+
+    var boutonpop3 = document.getElementById('toggle-button-3');
+    boutonpop3.setAttribute('onclick', 'connexion()');
+    boutonpop3.setAttribute('name', '');
+
+    
+}
+
+function connexion() {
+    // Change the title
+    document.getElementById('form-title').innerText = 'Formulaire d\'inscription de l\'enfant';
+
+    // Show name fields
+    document.getElementById('info-kids-fields').style.display = 'none';
+
+    document.getElementById('info-parents-fields').style.display = 'none' ;
+
+    document.getElementById('info-person-fields').style.display = 'none' ;
+
+    document.getElementById('info-fields').innerHTML = `<label for="email">Email :</label>
+    <input type="email" id="email" name="email" required>  `;
+    
+    
+    document.getElementById('password-fields').style.display = ' block' ;
+    
+
+    // Restore email and password fields to include verification
+    document.getElementById('password-fields').innerHTML = `
+    
+        <label for="password">Mot de passe :</label>
+        <input id="password" name="password" required> 
+    `;
+
+    
+
+    
+
+
+    // Change the toggle button to switch back to login
+    
+
+    var boutonpop1 = document.getElementById('toggle-button-1');
+    boutonpop1.setAttribute('onclick', 'inscriptionenfant()');
+    boutonpop1.setAttribute('name', '');
+
+    var boutonpop2 = document.getElementById('toggle-button-2');
+    boutonpop2.setAttribute('onclick', 'inscription()');
+    boutonpop2.setAttribute('name', '');
+
+    var boutonpop3 = document.getElementById('toggle-button-3');
+    boutonpop3.setAttribute('onclick', '');
+    boutonpop3.setAttribute('name', 'togglebutton3');
+}
+
+
+
+
+
+
+
+
+
+
+
     </script>
-</body>
-</html>
