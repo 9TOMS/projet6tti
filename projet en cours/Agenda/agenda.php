@@ -1,10 +1,7 @@
-<?php
+ <?php
 $bdd = mysqli_connect('localhost', 'root', '', 'crepuscule');
 mysqli_set_charset($bdd, "utf8");
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'inscription') {
-
-
-    // Récupérer et sécuriser les données
     $evenement_id = intval($_POST['evenement_id']);
     $nom = mysqli_real_escape_string($bdd, $_POST['Nom']);
     $prenom = mysqli_real_escape_string($bdd, $_POST['Prenom']);
@@ -12,7 +9,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $tel = mysqli_real_escape_string($bdd, $_POST['tel']);
     $nombre = intval($_POST['number']);
 
-    $query = "INSERT INTO inscriptions (evenement_id, nom, prenom, email, tel, nombre_participants) VALUES ($evenement_id, '$nom', '$prenom', '$email', '$tel', $nombre)";
+    // ✅ Vérifier le quota
+    // Récupérer le nombre total de personnes déjà inscrites
+    $resTotal = mysqli_query($bdd, "SELECT SUM(nombre_participants) AS total FROM inscriptions WHERE evenement_id = $evenement_id");
+    $rowTotal = mysqli_fetch_assoc($resTotal);
+    $totalInscrits = intval($rowTotal['total']);
+
+    // Récupérer le max autorisé
+    $resMax = mysqli_query($bdd, "SELECT max_participants FROM evenements WHERE id = $evenement_id");
+    $rowMax = mysqli_fetch_assoc($resMax);
+    $max = intval($rowMax['max_participants']);
+
+    if ($max > 0 && ($totalInscrits + $nombre > $max)) {
+        // ❌ Trop d'inscrits, on refuse
+        echo json_encode([
+            'success' => false,
+            'error' => "Il n'y a plus assez de places disponibles pour cet événement."
+        ]);
+        exit;
+    }
+
+    // ✅ Si ok, on insère
+    $query = "INSERT INTO inscriptions (evenement_id, nom, prenom, email, tel, nombre_participants)
+              VALUES ($evenement_id, '$nom', '$prenom', '$email', '$tel', $nombre)";
+    
     if (mysqli_query($bdd, $query)) {
         echo json_encode(['success' => true]);
     } else {
@@ -51,16 +71,19 @@ if (isset($_GET['api']) && $_GET['api'] === 'evenements') {
     $heure_fin = isset($input['heure_fin']) ? mysqli_real_escape_string($bdd, $input['heure_fin']) : null;
     $date_debut = isset($input['date_debut']) ? mysqli_real_escape_string($bdd, $input['date_debut']) : null;
     $date_fin = isset($input['date_fin']) ? mysqli_real_escape_string($bdd, $input['date_fin']) : null;
-        $query = "INSERT INTO evenements (date, heure, nom, heure_debut, heure_fin, date_debut, date_fin)
-          VALUES (
-              '$date',
-              '$heure',
-              '$nom',
-              " . ($heure_debut ? "'$heure_debut'" : "NULL") . ",
-              " . ($heure_fin ? "'$heure_fin'" : "NULL") . ",
-              " . ($date_debut ? "'$date_debut'" : "NULL") . ",
-              " . ($date_fin ? "'$date_fin'" : "NULL") . "
-          )";
+       $max_participants = isset($input['max_participants']) ? intval($input['max_participants']) : 0;
+
+$query = "INSERT INTO evenements (date, heure, nom, heure_debut, heure_fin, date_debut, date_fin, max_participants)
+VALUES (
+    '$date',
+    '$heure',
+    '$nom',
+    " . ($heure_debut ? "'$heure_debut'" : "NULL") . ",
+    " . ($heure_fin ? "'$heure_fin'" : "NULL") . ",
+    " . ($date_debut ? "'$date_debut'" : "NULL") . ",
+    " . ($date_fin ? "'$date_fin'" : "NULL") . ",
+    $max_participants
+)";
 
 
 
@@ -683,6 +706,139 @@ eventCell.addEventListener("click", () => {
         agendaJournee.appendChild(eventCell);
     }
 }
+function ouvrirFormulaireCreation(dateStr, heure = "08:00") {
+    const eventCell = { dataset: { time: heure } };
+
+    // === Code copié de eventCell.addEventListener("click", ...) ===
+    const inputNom = document.createElement("input");
+    inputNom.type = "text";
+    inputNom.placeholder = "Nom de l'événement";
+    inputNom.required = true;
+    inputNom.style.width = "100%";
+    inputNom.style.marginTop = "10px";
+
+    const inputMax = document.createElement("input");
+    inputMax.type = "number";
+    inputMax.placeholder = "Nombre maximum d'inscriptions";
+    inputMax.min = 1;
+    inputMax.required = true;
+    inputMax.style.width = "100%";
+    inputMax.style.marginTop = "10px";
+
+    const chkHeure = document.createElement("input");
+    chkHeure.type = "checkbox";
+    const lblHeure = document.createElement("label");
+    lblHeure.textContent = " Définir une heure de début et fin";
+    lblHeure.style.display = "block";
+    lblHeure.prepend(chkHeure);
+
+    const chkDate = document.createElement("input");
+    chkDate.type = "checkbox";
+    const lblDate = document.createElement("label");
+    lblDate.textContent = " Définir une date de début et fin";
+    lblDate.style.display = "block";
+    lblDate.prepend(chkDate);
+
+    const inputHeureDebut = document.createElement("input");
+    inputHeureDebut.type = "time";
+    inputHeureDebut.style.display = "none";
+    inputHeureDebut.style.marginTop = "5px";
+
+    const inputHeureFin = document.createElement("input");
+    inputHeureFin.type = "time";
+    inputHeureFin.style.display = "none";
+    inputHeureFin.style.marginTop = "5px";
+
+    const inputDateDebut = document.createElement("input");
+    inputDateDebut.type = "date";
+    inputDateDebut.style.display = "none";
+    inputDateDebut.style.marginTop = "5px";
+
+    const inputDateFin = document.createElement("input");
+    inputDateFin.type = "date";
+    inputDateFin.style.display = "none";
+    inputDateFin.style.marginTop = "5px";
+
+    chkHeure.onchange = () => {
+        inputHeureDebut.style.display = chkHeure.checked ? "block" : "none";
+        inputHeureFin.style.display = chkHeure.checked ? "block" : "none";
+    };
+
+    chkDate.onchange = () => {
+        inputDateDebut.style.display = chkDate.checked ? "block" : "none";
+        inputDateFin.style.display = chkDate.checked ? "block" : "none";
+    };
+
+    const confirmation = document.createElement("div");
+    confirmation.style.position = "fixed";
+    confirmation.style.top = "50%";
+    confirmation.style.left = "50%";
+    confirmation.style.transform = "translate(-50%, -50%)";
+    confirmation.style.background = "white";
+    confirmation.style.padding = "20px";
+    confirmation.style.border = "1px solid black";
+    confirmation.style.zIndex = "1000";
+    confirmation.style.textAlign = "center";
+    confirmation.style.borderRadius = "8px";
+    confirmation.style.boxShadow = "0 0 10px rgba(0,0,0,0.5)";
+    confirmation.style.width = "300px";
+
+    const boutonValider = document.createElement("button");
+    boutonValider.textContent = "Valider";
+    boutonValider.style.marginTop = "15px";
+    boutonValider.style.padding = "5px 10px";
+    boutonValider.style.backgroundColor = "blue";
+    boutonValider.style.color = "white";
+    boutonValider.style.border = "none";
+    boutonValider.style.borderRadius = "5px";
+    boutonValider.style.cursor = "pointer";
+
+    boutonValider.onclick = async () => {
+        const bodyData = {
+            date: dateStr,
+            heure: eventCell.dataset.time,
+            nom: inputNom.value.trim(),
+            max_participants: parseInt(inputMax.value)
+        };
+
+        if (chkHeure.checked) {
+            bodyData.heure_debut = inputHeureDebut.value;
+            bodyData.heure_fin = inputHeureFin.value;
+        }
+        if (chkDate.checked) {
+            bodyData.date_debut = inputDateDebut.value;
+            bodyData.date_fin = inputDateFin.value;
+        }
+
+        const response = await fetch('?api=evenements', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(bodyData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            window.location.reload();
+        } else {
+            alert("Erreur lors de la sauvegarde : " + result.error);
+        }
+
+        document.body.removeChild(confirmation);
+    };
+
+    confirmation.appendChild(inputNom);
+    confirmation.appendChild(inputMax);
+    confirmation.appendChild(lblHeure);
+    confirmation.appendChild(inputHeureDebut);
+    confirmation.appendChild(inputHeureFin);
+    confirmation.appendChild(lblDate);
+    confirmation.appendChild(inputDateDebut);
+    confirmation.appendChild(inputDateFin);
+    confirmation.appendChild(boutonValider);
+
+    document.body.appendChild(confirmation);
+}
 
 function retourAgendaFinal() {
     agendaJourDiv.classList.add("hidden");
@@ -737,17 +893,153 @@ async function afficherAgendaFinal() {
         titreJour.appendChild(h4);
 
         titreJour.addEventListener("click", () => {
-        if (isAdmin) {
-            ouvrirAgendaJour(dateStr);
-        } else {
-            ouvrirFormulaireInscription(dateStr);
-        }
+       if (isAdmin) {
+    ouvrirFormulaireCreation(dateStr, "08:00"); // 08:00 par défaut
+} else {
+    ouvrirFormulaireInscription(dateStr);
+}
         });
 
         const events = eventsByDate[dateStr] || [];
         events.forEach(ev => {
             const eventDiv = document.createElement("div");
-            eventDiv.textContent = ev.heure + " " + ev.nom;
+            let texte = ev.nom;
+
+// Afficher les heures de début/fin si présentes
+if (ev.heure_debut && ev.heure_fin) {
+    texte += ` (${ev.heure_debut} → ${ev.heure_fin})`;
+} 
+// Sinon afficher les dates de début/fin si présentes
+else if (ev.date_debut && ev.date_fin) {
+    texte += ` (${ev.date_debut} → ${ev.date_fin})`;
+}
+// Sinon heure simple
+else if (ev.heure) {
+    texte = `${ev.heure} - ${texte}`;
+}
+
+eventDiv.style.display = "flex";
+eventDiv.style.justifyContent = "space-between";
+eventDiv.style.alignItems = "center";
+
+const spanNom = document.createElement("span");
+spanNom.textContent = texte;
+eventDiv.appendChild(spanNom);
+
+if (isAdmin) {
+    // === Bouton Voir inscrits ===
+    const btnVoir = document.createElement("button");
+    btnVoir.textContent = "👁️";
+    btnVoir.title = "Voir inscrits";
+    btnVoir.style.marginLeft = "5px";
+    btnVoir.style.fontSize = "10px";
+    btnVoir.style.padding = "2px 4px";
+    btnVoir.style.cursor = "pointer";
+
+    btnVoir.onclick = async (e) => {
+        e.stopPropagation();
+        const res = await fetch(`?api=inscrits&evenement_id=${ev.id}`);
+        const data = await res.json();
+
+        const modal = document.createElement("div");
+        modal.style.position = "fixed";
+        modal.style.top = "50%";
+        modal.style.left = "50%";
+        modal.style.transform = "translate(-50%, -50%)";
+        modal.style.background = "white";
+        modal.style.padding = "20px";
+        modal.style.border = "1px solid black";
+        modal.style.zIndex = 10001;
+        modal.style.borderRadius = "8px";
+        modal.style.maxHeight = "80vh";
+        modal.style.overflowY = "auto";
+        modal.style.width = "400px";
+
+        const titre = document.createElement("h3");
+        titre.textContent = `Inscrits à "${ev.nom}" - Total: ${data.total}`;
+        modal.appendChild(titre);
+
+        if (data.inscrits.length === 0) {
+            const p = document.createElement("p");
+            p.textContent = "Aucun inscrit pour cet événement.";
+            modal.appendChild(p);
+        } else {
+            const table = document.createElement("table");
+            table.style.width = "100%";
+            table.style.borderCollapse = "collapse";
+
+            const trHead = document.createElement("tr");
+            ["Nom", "Prénom", "Email", "Téléphone", "Nb"].forEach(text => {
+                const th = document.createElement("th");
+                th.textContent = text;
+                th.style.border = "1px solid #ddd";
+                th.style.padding = "4px";
+                table.appendChild(trHead);
+                trHead.appendChild(th);
+            });
+
+            data.inscrits.forEach(inscrit => {
+                const tr = document.createElement("tr");
+                ["nom", "prenom", "email", "tel", "nombre_participants"].forEach(key => {
+                    const td = document.createElement("td");
+                    td.textContent = inscrit[key];
+                    td.style.border = "1px solid #ddd";
+                    td.style.padding = "4px";
+                    tr.appendChild(td);
+                });
+                table.appendChild(tr);
+            });
+
+            modal.appendChild(table);
+        }
+
+        const btnClose = document.createElement("button");
+        btnClose.textContent = "Fermer";
+        btnClose.style.marginTop = "10px";
+        btnClose.onclick = () => document.body.removeChild(modal);
+        modal.appendChild(btnClose);
+
+        document.body.appendChild(modal);
+    };
+
+    // === Bouton Supprimer ===
+    const btnDelete = document.createElement("button");
+    btnDelete.textContent = "✖";
+    btnDelete.title = "Supprimer";
+    btnDelete.style.marginLeft = "5px";
+    btnDelete.style.fontSize = "10px";
+    btnDelete.style.padding = "2px 5px";
+    btnDelete.style.color = "white";
+    btnDelete.style.background = "red";
+    btnDelete.style.border = "none";
+    btnDelete.style.borderRadius = "4px";
+    btnDelete.style.cursor = "pointer";
+
+    btnDelete.onclick = async (e) => {
+        e.stopPropagation();
+        if (confirm("Supprimer cet événement ?")) {
+            const res = await fetch('?api=evenements', {
+                method: 'DELETE',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({id: ev.id})
+            });
+            const data = await res.json();
+            if (data.success) {
+                afficherAgendaFinal(); // Mettre à jour sans recharger
+            } else {
+                alert("Erreur lors de la suppression : " + data.error);
+            }
+        }
+    };
+
+    const boutonContainer = document.createElement("div");
+    boutonContainer.style.display = "flex";
+    boutonContainer.appendChild(btnVoir);
+    boutonContainer.appendChild(btnDelete);
+    eventDiv.appendChild(boutonContainer);
+}
+
+
             eventDiv.style.backgroundColor = "#d7e7fa";
             eventDiv.style.margin = "2px 0";
             eventDiv.style.padding = "2px 5px";
