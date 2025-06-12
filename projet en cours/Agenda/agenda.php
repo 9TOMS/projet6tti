@@ -270,7 +270,11 @@ if (isset($_GET['api']) && $_GET['api'] === 'inscrits' && isset($_GET['evenement
             cursor: pointer;
             margin-top: 10px;
         }
-
+        .evenement-multijour {
+            background-color: #ffdb99; /* orange clair */
+            font-weight: bold;
+            border-left: 5px solid orange;
+        }
         /* Ligne de séparation */
         hr {
             border: none;
@@ -352,11 +356,7 @@ if (isset($_GET['api']) && $_GET['api'] === 'inscrits' && isset($_GET['evenement
     <?php include("menu.php"); ?>
     <main >
         <div id="agenda-custom">
-            <div class="agenda-jour hidden" id="agenda-jour">
-                <h1 id="jour-titre">Agenda du jour</h1>
-                <div class="agenda" id="agenda-journee"></div>
-                <button class="back-button" onclick="retourAgendaFinal()">Retour à l'agenda</button>
-            </div>
+
 
             <div class="agenda-final" id="agenda-final">
                 <div id="agenda-final-contenu" class="agenda-mois"></div>
@@ -372,8 +372,6 @@ if (isset($_GET['api']) && $_GET['api'] === 'inscrits' && isset($_GET['evenement
 
 const isAdmin = true;
 
-const agendaJourDiv = document.getElementById("agenda-jour");
-const agendaJournee = document.getElementById("agenda-journee");
 const jourTitre = document.getElementById("jour-titre");
 
 // API interne
@@ -382,15 +380,7 @@ async function getEvenements(dateStr) {
     return response.json();
 }
 
-async function saveEvenement(dateStr, heure, nom) {
-    const response = await fetch('?api=evenements', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({date: dateStr, heure: heure, nom: nom})
-    });
-    const result = await response.json();
-    return result.success;
-}
+
 
 // Fonctions inchangées...
 
@@ -415,297 +405,6 @@ function formatDateLong(dateStr) {
     });
 }
 
-async function ouvrirAgendaJour(dateStr) {
-    if (!isAdmin) 
-    {
-       return; 
-    }
-    
-
-    
-    document.getElementById("agenda-final").classList.add("hidden");
-    agendaJourDiv.classList.remove("hidden");
-    jourTitre.textContent = "Agenda du " + formatDateLong(dateStr);
-    agendaJournee.innerHTML = "";
-
-    const events = await getEvenements(dateStr);
-
-    for (let hour = 8; hour <= 18; hour++) {
-        const timeRow = document.createElement("div");
-        timeRow.className = "time-slot hour";
-        timeRow.textContent = hour + ":00";
-        agendaJournee.appendChild(timeRow);
-
-        const eventCell = document.createElement("div");
-        eventCell.className = "time-slot event-cell";
-        eventCell.dataset.time = hour + ":00";
-
-        // Remplir la cellule si un événement existe
-        const event = events.find(e => e.heure === eventCell.dataset.time);
-        if (event) {
-            const eventDiv = document.createElement("div");
-            eventDiv.className = "event";
-            eventDiv.textContent = event.nom;
-              if (isAdmin) {
-        const btnVoirInscrits = document.createElement("button");
-        btnVoirInscrits.textContent = "Voir inscrits";
-        btnVoirInscrits.style.marginLeft = "10px";
-        btnVoirInscrits.style.fontSize = "12px";
-        btnVoirInscrits.style.padding = "2px 5px";
-        btnVoirInscrits.style.cursor = "pointer";
-
-        btnVoirInscrits.onclick = async (e) => {
-            e.stopPropagation();
-
-            // Récupérer la liste des inscrits via API
-            const res = await fetch(`?api=inscrits&evenement_id=${event.id}`);
-            const data = await res.json();
-
-            // Créer modale pour afficher les inscrits
-            const modal = document.createElement("div");
-            modal.style.position = "fixed";
-            modal.style.top = "50%";
-            modal.style.left = "50%";
-            modal.style.transform = "translate(-50%, -50%)";
-            modal.style.background = "white";
-            modal.style.padding = "20px";
-            modal.style.border = "1px solid black";
-            modal.style.zIndex = 10001;
-            modal.style.borderRadius = "8px";
-            modal.style.maxHeight = "80vh";
-            modal.style.overflowY = "auto";
-            modal.style.width = "400px";
-
-            const titre = document.createElement("h3");
-            titre.textContent = `Inscrits à "${event.nom}" (${event.heure}) - Total: ${data.total}`;
-            modal.appendChild(titre);
-
-            if (data.inscrits.length === 0) {
-                const p = document.createElement("p");
-                p.textContent = "Aucun inscrit pour cet événement.";
-                modal.appendChild(p);
-            } else {
-                const table = document.createElement("table");
-                table.style.width = "100%";
-                table.style.borderCollapse = "collapse";
-
-                const trHead = document.createElement("tr");
-                ["Nom", "Prénom", "Email", "Téléphone", "Nb participants"].forEach(headerText => {
-                    const th = document.createElement("th");
-                    th.textContent = headerText;
-                    th.style.border = "1px solid #ddd";
-                    th.style.padding = "5px";
-                    th.style.textAlign = "left";
-                    trHead.appendChild(th);
-                });
-                table.appendChild(trHead);
-
-                data.inscrits.forEach(inscrit => {
-                    const tr = document.createElement("tr");
-                    ["nom", "prenom", "email", "tel", "nombre_participants"].forEach(field => {
-                        const td = document.createElement("td");
-                        td.textContent = inscrit[field];
-                        td.style.border = "1px solid #ddd";
-                        td.style.padding = "5px";
-                        tr.appendChild(td);
-                    });
-                    table.appendChild(tr);
-                });
-
-                modal.appendChild(table);
-            }
-
-            const btnClose = document.createElement("button");
-            btnClose.textContent = "Fermer";
-            btnClose.style.marginTop = "10px";
-            btnClose.onclick = () => document.body.removeChild(modal);
-            modal.appendChild(btnClose);
-
-            document.body.appendChild(modal);
-        };
-
-        eventDiv.appendChild(btnVoirInscrits);
-    }
-            // Bouton supprimer
-            if (isAdmin) {
-                const btnDelete = document.createElement("button");
-                btnDelete.textContent = "×"; // Croisillon pour supprimer
-                btnDelete.title = "Supprimer cet événement";
-                btnDelete.style.position = "absolute";
-                btnDelete.style.top = "2px";
-                btnDelete.style.right = "2px";
-                btnDelete.style.background = "red";
-                btnDelete.style.color = "white";
-                btnDelete.style.border = "none";
-                btnDelete.style.borderRadius = "50%";
-                btnDelete.style.width = "18px";
-                btnDelete.style.height = "18px";
-                btnDelete.style.cursor = "pointer";
-                btnDelete.style.fontWeight = "bold";
-                btnDelete.style.fontSize = "14px";
-                btnDelete.style.lineHeight = "18px";
-                btnDelete.style.padding = "0";
-
-                btnDelete.onclick = async (e) => {
-                    e.stopPropagation(); // Pour éviter d'ouvrir le select de création
-                    if (confirm("Voulez-vous vraiment supprimer cet événement ?")) {
-                        const res = await fetch('?api=evenements', {
-                            method: 'DELETE',
-                            headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify({id: event.id})
-                        });
-                        const data = await res.json();
-                        if (data.success) {
-                            window.location.reload();// Rafraîchir l'affichage de la journée
-                        } else {
-                            alert("Erreur lors de la suppression : " + data.error);
-                        }
-                    }
-                };
-
-                eventDiv.appendChild(btnDelete);
-            }
-            eventCell.appendChild(eventDiv);
-        }
-
-eventCell.addEventListener("click", () => {
-    if (!isAdmin) return;
-
-    const inputNom = document.createElement("input");
-    inputNom.type = "text";
-    inputNom.placeholder = "Nom de l'événement";
-    inputNom.required = true;
-    inputNom.style.width = "100%";
-    inputNom.style.marginTop = "10px";
-
-    const inputMax = document.createElement("input");
-    inputMax.type = "number";
-    inputMax.placeholder = "Nombre maximum d'inscriptions";
-    inputMax.min = 1;
-    inputMax.required = true;
-    inputMax.style.width = "100%";
-    inputMax.style.marginTop = "10px";
-
-    const chkHeure = document.createElement("input");
-    chkHeure.type = "checkbox";
-    const lblHeure = document.createElement("label");
-    lblHeure.textContent = " Définir une heure de début et fin";
-    lblHeure.style.display = "block";
-    lblHeure.prepend(chkHeure);
-
-    const chkDate = document.createElement("input");
-    chkDate.type = "checkbox";
-    const lblDate = document.createElement("label");
-    lblDate.textContent = " Définir une date de début et fin";
-    lblDate.style.display = "block";
-    lblDate.prepend(chkDate);
-
-    const inputHeureDebut = document.createElement("input");
-    inputHeureDebut.type = "time";
-    inputHeureDebut.style.display = "none";
-    inputHeureDebut.style.marginTop = "5px";
-
-    const inputHeureFin = document.createElement("input");
-    inputHeureFin.type = "time";
-    inputHeureFin.style.display = "none";
-    inputHeureFin.style.marginTop = "5px";
-
-    const inputDateDebut = document.createElement("input");
-    inputDateDebut.type = "date";
-    inputDateDebut.style.display = "none";
-    inputDateDebut.style.marginTop = "5px";
-
-    const inputDateFin = document.createElement("input");
-    inputDateFin.type = "date";
-    inputDateFin.style.display = "none";
-    inputDateFin.style.marginTop = "5px";
-
-    chkHeure.onchange = () => {
-        inputHeureDebut.style.display = chkHeure.checked ? "block" : "none";
-        inputHeureFin.style.display = chkHeure.checked ? "block" : "none";
-    };
-
-    chkDate.onchange = () => {
-        inputDateDebut.style.display = chkDate.checked ? "block" : "none";
-        inputDateFin.style.display = chkDate.checked ? "block" : "none";
-    };
-
-    const confirmation = document.createElement("div");
-    confirmation.style.position = "fixed";
-    confirmation.style.top = "50%";
-    confirmation.style.left = "50%";
-    confirmation.style.transform = "translate(-50%, -50%)";
-    confirmation.style.background = "white";
-    confirmation.style.padding = "20px";
-    confirmation.style.border = "1px solid black";
-    confirmation.style.zIndex = "1000";
-    confirmation.style.textAlign = "center";
-    confirmation.style.borderRadius = "8px";
-    confirmation.style.boxShadow = "0 0 10px rgba(0,0,0,0.5)";
-    confirmation.style.width = "300px";
-
-    const boutonValider = document.createElement("button");
-    boutonValider.textContent = "Valider";
-    boutonValider.style.marginTop = "15px";
-    boutonValider.style.padding = "5px 10px";
-    boutonValider.style.backgroundColor = "blue";
-    boutonValider.style.color = "white";
-    boutonValider.style.border = "none";
-    boutonValider.style.borderRadius = "5px";
-    boutonValider.style.cursor = "pointer";
-
-    boutonValider.onclick = async () => {
-        const bodyData = {
-            date: dateStr,
-            heure: eventCell.dataset.time,
-            nom: inputNom.value.trim(),
-            max_participants: parseInt(inputMax.value)
-        };
-
-        if (chkHeure.checked) {
-            bodyData.heure_debut = inputHeureDebut.value;
-            bodyData.heure_fin = inputHeureFin.value;
-        }
-        if (chkDate.checked) {
-            bodyData.date_debut = inputDateDebut.value;
-            bodyData.date_fin = inputDateFin.value;
-        }
-
-        const response = await fetch('?api=evenements', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(bodyData)
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            window.location.reload();
-        } else {
-            alert("Erreur lors de la sauvegarde : " + result.error);
-        }
-
-        document.body.removeChild(confirmation);
-    };
-
-    confirmation.appendChild(inputNom);
-    confirmation.appendChild(inputMax);
-    confirmation.appendChild(lblHeure);
-    confirmation.appendChild(inputHeureDebut);
-    confirmation.appendChild(inputHeureFin);
-    confirmation.appendChild(lblDate);
-    confirmation.appendChild(inputDateDebut);
-    confirmation.appendChild(inputDateFin);
-    confirmation.appendChild(boutonValider);
-
-    document.body.appendChild(confirmation);
-});
-
-
-
-        agendaJournee.appendChild(eventCell);
-    }
-}
 function ouvrirFormulaireCreation(dateStr, heure = "08:00") {
     const eventCell = { dataset: { time: heure } };
 
@@ -855,10 +554,21 @@ async function afficherAgendaFinal() {
 
     // Regrouper par date
     const eventsByDate = {};
-    evenements.forEach(e => {
-        if (!eventsByDate[e.date]) eventsByDate[e.date] = [];
-        eventsByDate[e.date].push(e);
-    });
+   evenements.forEach(e => {
+    if (e.date_debut && e.date_fin) {
+        const start = new Date(e.date_debut);
+        const end = new Date(e.date_fin);
+        for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+            const dStr = d.toISOString().split("T")[0];
+            if (!eventsByDate[dStr]) eventsByDate[dStr] = [];
+            eventsByDate[dStr].push(e);
+        }
+    } else {
+        const dStr = e.date;
+        if (!eventsByDate[dStr]) eventsByDate[dStr] = [];
+        eventsByDate[dStr].push(e);
+    }
+});
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -917,7 +627,10 @@ else if (ev.date_debut && ev.date_fin) {
 else if (ev.heure) {
     texte = `${ev.heure} - ${texte}`;
 }
-
+eventDiv.classList.add("evenement");
+if (ev.date_debut && ev.date_fin) {
+    eventDiv.classList.add("evenement-multijour"); // 🎯 ici
+}
 eventDiv.style.display = "flex";
 eventDiv.style.justifyContent = "space-between";
 eventDiv.style.alignItems = "center";
