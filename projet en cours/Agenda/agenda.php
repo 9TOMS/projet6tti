@@ -41,14 +41,30 @@ if (isset($_GET['api']) && $_GET['api'] === 'evenements') {
         echo json_encode($events);
         exit;
     }
-
+    
     if ($method === 'POST') {
         $input = json_decode(file_get_contents('php://input'), true);
         $date = mysqli_real_escape_string($bdd, $input['date']);
         $heure = mysqli_real_escape_string($bdd, $input['heure']);
         $nom = mysqli_real_escape_string($bdd, $input['nom']);
+            $heure_debut = isset($input['heure_debut']) ? mysqli_real_escape_string($bdd, $input['heure_debut']) : null;
+    $heure_fin = isset($input['heure_fin']) ? mysqli_real_escape_string($bdd, $input['heure_fin']) : null;
+    $date_debut = isset($input['date_debut']) ? mysqli_real_escape_string($bdd, $input['date_debut']) : null;
+    $date_fin = isset($input['date_fin']) ? mysqli_real_escape_string($bdd, $input['date_fin']) : null;
+        $query = "INSERT INTO evenements (date, heure, nom, heure_debut, heure_fin, date_debut, date_fin)
+          VALUES (
+              '$date',
+              '$heure',
+              '$nom',
+              " . ($heure_debut ? "'$heure_debut'" : "NULL") . ",
+              " . ($heure_fin ? "'$heure_fin'" : "NULL") . ",
+              " . ($date_debut ? "'$date_debut'" : "NULL") . ",
+              " . ($date_fin ? "'$date_fin'" : "NULL") . "
+          )";
 
-        $query = "INSERT INTO evenements (date, heure, nom) VALUES ('$date', '$heure', '$nom')";
+
+
+    
         if (mysqli_query($bdd, $query)) {
             echo json_encode(['success' => true]);
         } else {
@@ -532,20 +548,56 @@ async function ouvrirAgendaJour(dateStr) {
        eventCell.addEventListener("click", () => {
     if (!isAdmin) return;
 
-    const select = document.createElement("select");
-    ["BALADES", "COURS", "STAGES"].forEach(opt => {
-        const option = document.createElement("option");
-        option.value = opt;
-        option.textContent = opt;
-        select.appendChild(option);
-    });
+    const inputNom = document.createElement("input");
+    inputNom.type = "text";
+    inputNom.placeholder = "Nom de l'événement";
+    inputNom.required = true;
+    inputNom.style.width = "100%";
+    inputNom.style.marginTop = "10px";
 
-    const inputPerso = document.createElement("input");
-    inputPerso.type = "text";
-    inputPerso.placeholder = "Ou saisissez un nom personnalisé";
-    inputPerso.style.display = "block";
-    inputPerso.style.marginTop = "10px";
-    inputPerso.style.width = "100%";
+    const chkHeure = document.createElement("input");
+    chkHeure.type = "checkbox";
+    const lblHeure = document.createElement("label");
+    lblHeure.textContent = " Définir une heure de début et fin";
+    lblHeure.style.display = "block";
+    lblHeure.prepend(chkHeure);
+
+    const chkDate = document.createElement("input");
+    chkDate.type = "checkbox";
+    const lblDate = document.createElement("label");
+    lblDate.textContent = " Définir une date de début et fin";
+    lblDate.style.display = "block";
+    lblDate.prepend(chkDate);
+
+    const inputHeureDebut = document.createElement("input");
+    inputHeureDebut.type = "time";
+    inputHeureDebut.style.display = "none";
+    inputHeureDebut.style.marginTop = "5px";
+
+    const inputHeureFin = document.createElement("input");
+    inputHeureFin.type = "time";
+    inputHeureFin.style.display = "none";
+    inputHeureFin.style.marginTop = "5px";
+
+    const inputDateDebut = document.createElement("input");
+    inputDateDebut.type = "date";
+    inputDateDebut.style.display = "none";
+    inputDateDebut.style.marginTop = "5px";
+
+    const inputDateFin = document.createElement("input");
+    inputDateFin.type = "date";
+    inputDateFin.style.display = "none";
+    inputDateFin.style.marginTop = "5px";
+
+    chkHeure.onchange = () => {
+        inputHeureDebut.style.display = chkHeure.checked ? "block" : "none";
+        inputHeureFin.style.display = chkHeure.checked ? "block" : "none";
+    };
+
+    chkDate.onchange = () => {
+        inputDateDebut.style.display = chkDate.checked ? "block" : "none";
+        inputDateFin.style.display = chkDate.checked ? "block" : "none";
+    };
 
     const confirmation = document.createElement("div");
     confirmation.style.position = "fixed";
@@ -561,11 +613,6 @@ async function ouvrirAgendaJour(dateStr) {
     confirmation.style.boxShadow = "0 0 10px rgba(0,0,0,0.5)";
     confirmation.style.width = "300px";
 
-    const label = document.createElement("label");
-    label.textContent = "Choisissez le type d'événement ou saisissez un nom :";
-    label.style.display = "block";
-    label.style.marginBottom = "10px";
-
     const boutonValider = document.createElement("button");
     boutonValider.textContent = "Valider";
     boutonValider.style.marginTop = "15px";
@@ -577,20 +624,47 @@ async function ouvrirAgendaJour(dateStr) {
     boutonValider.style.cursor = "pointer";
 
     boutonValider.onclick = async () => {
-        const eventName = inputPerso.value.trim() !== "" ? inputPerso.value.trim() : select.value;
-        const success = await saveEvenement(dateStr, eventCell.dataset.time, eventName);
-        if (success) {
+        const bodyData = {
+            date: dateStr,
+            heure: eventCell.dataset.time,
+            nom: inputNom.value.trim()
+        };
+
+        if (chkHeure.checked) {
+            bodyData.heure_debut = inputHeureDebut.value;
+            bodyData.heure_fin = inputHeureFin.value;
+        }
+        if (chkDate.checked) {
+            bodyData.date_debut = inputDateDebut.value;
+            bodyData.date_fin = inputDateFin.value;
+        }
+
+        const response = await fetch('?api=evenements', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(bodyData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
             window.location.reload();
         } else {
-            alert("Erreur lors de la sauvegarde.");
+            alert("Erreur lors de la sauvegarde : " + result.error);
         }
+
         document.body.removeChild(confirmation);
     };
 
-    confirmation.appendChild(label);
-    confirmation.appendChild(select);
-    confirmation.appendChild(inputPerso);
+    confirmation.appendChild(inputNom);
+    confirmation.appendChild(lblHeure);
+    confirmation.appendChild(inputHeureDebut);
+    confirmation.appendChild(inputHeureFin);
+    confirmation.appendChild(lblDate);
+    confirmation.appendChild(inputDateDebut);
+    confirmation.appendChild(inputDateFin);
     confirmation.appendChild(boutonValider);
+
     document.body.appendChild(confirmation);
 });
 
