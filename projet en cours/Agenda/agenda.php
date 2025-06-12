@@ -545,7 +545,7 @@ async function ouvrirAgendaJour(dateStr) {
             eventCell.appendChild(eventDiv);
         }
 
-       eventCell.addEventListener("click", () => {
+eventCell.addEventListener("click", () => {
     if (!isAdmin) return;
 
     const inputNom = document.createElement("input");
@@ -554,6 +554,14 @@ async function ouvrirAgendaJour(dateStr) {
     inputNom.required = true;
     inputNom.style.width = "100%";
     inputNom.style.marginTop = "10px";
+
+    const inputMax = document.createElement("input");
+    inputMax.type = "number";
+    inputMax.placeholder = "Nombre maximum d'inscriptions";
+    inputMax.min = 1;
+    inputMax.required = true;
+    inputMax.style.width = "100%";
+    inputMax.style.marginTop = "10px";
 
     const chkHeure = document.createElement("input");
     chkHeure.type = "checkbox";
@@ -627,7 +635,8 @@ async function ouvrirAgendaJour(dateStr) {
         const bodyData = {
             date: dateStr,
             heure: eventCell.dataset.time,
-            nom: inputNom.value.trim()
+            nom: inputNom.value.trim(),
+            max_participants: parseInt(inputMax.value)
         };
 
         if (chkHeure.checked) {
@@ -657,6 +666,7 @@ async function ouvrirAgendaJour(dateStr) {
     };
 
     confirmation.appendChild(inputNom);
+    confirmation.appendChild(inputMax);
     confirmation.appendChild(lblHeure);
     confirmation.appendChild(inputHeureDebut);
     confirmation.appendChild(inputHeureFin);
@@ -667,6 +677,7 @@ async function ouvrirAgendaJour(dateStr) {
 
     document.body.appendChild(confirmation);
 });
+
 
 
         agendaJournee.appendChild(eventCell);
