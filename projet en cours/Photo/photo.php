@@ -204,7 +204,7 @@
                         $sql = "SELECT photo.*, parent_photo.parent_nom 
                         FROM photo 
                         INNER JOIN parent_photo ON photo.id_parent = parent_photo.id_parent 
-                        ORDER BY photo.id_parent ASC, photo.Id_Photo ASC";
+                        ORDER BY photo.id_parent DESC, photo.Id_Photo DESC";
                         $result = $conn->query($sql);
                         $publications = [];
 
