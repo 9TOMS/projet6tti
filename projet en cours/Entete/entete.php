@@ -30,7 +30,7 @@ if (!mysqli_set_charset($connexion, "utf8")) {
                         $row = mysqli_fetch_assoc($result);
                         $hashpassword = $row['Mot_de_passe_Membre'];
                         $mailv = $row['Mail_Membre'];
-                        $isadmin = $row['administrateur'];
+                        $isadministrateur = $row['administrateur'];
 
                         // Vérification du mot de passe
                         if (password_verify($mdp_salte, $hashpassword)) {
@@ -38,8 +38,8 @@ if (!mysqli_set_charset($connexion, "utf8")) {
                                 
                                 $connecte = true;
                                 $_SESSION['utilisateur'] = $mail;
-                                echo "Connexion réussie. " . htmlspecialchars($mail);
-                                 $administrateur = false;
+                                //echo "Connexion réussie. " . htmlspecialchars($mail);
+                                 $isadmin = false;
 
                                 // Tu peux stocker $isadmin aussi si nécessaire :
                                 // $_SESSION['admin'] = $isadmin;
@@ -48,7 +48,7 @@ if (!mysqli_set_charset($connexion, "utf8")) {
                         } 
                     } 
 
-                if (isset($_COOKIE['administrateur']) && isset($_COOKIE['adminmdp']))  {
+                if ((isset($_COOKIE['admin'])) && ($_COOKIE['admin'] == true))  {
                     $mdp_salte = PREFIX_SALT . $_COOKIE['adminmdp'] . SUFFIX_SALT;
                     $mailuti = $_COOKIE['administrateur'];
 
@@ -61,19 +61,20 @@ if (!mysqli_set_charset($connexion, "utf8")) {
                                 $row = mysqli_fetch_assoc($result);
                                 $hashpassword = $row['Mot_de_passe_Membre'];
                                 $mailv = $row['Mail_Membre'];
-                                $isadmin = $row['administrateur'];
+                                $isadministrateur = $row['administrateur'];
 
                                 // Vérification du mot de passe
                                 if (password_verify($mdp_salte, $hashpassword)) {
                                     
                                         
                                         $connecte = true;
-                                        $_SESSION['utilisateur'] = $mail;
-                                        echo "Connexion admin réussie. " . htmlspecialchars($mail);
-                                        $administrateur = true;
+                                        $_SESSION['utilisateur'] = $mailv;
+                                        //echo "Connexion admin réussie. " . htmlspecialchars($mailv);
+                                        $isadmin = true;
 
                                         // Tu peux stocker $isadmin aussi si nécessaire :
                                         // $_SESSION['admin'] = $isadmin;
+                                        
                                     }
                                     
                                 } 
@@ -107,7 +108,7 @@ if (!mysqli_set_charset($connexion, "utf8")) {
                             echo "Erreur d'insertion : " . mysqli_error($connexion);
                         }
 
-                         $administrateur = false;
+                         $isadmin = false;
 
                         setcookie('mailuser', $mail, time() + 90*24*3600, '/', '', false, true);
                                 setcookie('mdpuser', $mdp, time() + 90*24*3600, '/', '', false, true);
@@ -142,7 +143,7 @@ if (!mysqli_set_charset($connexion, "utf8")) {
                         
                             setcookie('mailuser', $mail, time() + 90*24*3600, '/', '', false, true);
                                 setcookie('mdpuser', $mdp, time() + 90*24*3600, '/', '', false, true);
-                             $administrateur = false;
+                             $isadmin = false;
 
                             echo "Insertion réussie."; // DOIT venir après les setcookie
 
@@ -172,31 +173,40 @@ if (!mysqli_set_charset($connexion, "utf8")) {
                         $row = mysqli_fetch_assoc($result);
                         $hashpassword = $row['Mot_de_passe_Membre'];
                         $mailv = $row['Mail_Membre'];
-                        $isadmin = $row['administrateur'];
+                        $isadministrateur = $row['administrateur'];
 
                         // Vérification du mot de passe
                         if (password_verify($mdp_salte, $hashpassword)) {
-                            if ($isadmin == TRUE) {
+                            if ($isadministrateur == TRUE) {
                                
                                 $connecte = true;
-                                $_SESSION['administrateur'] = $mail;
-                                 $administrateur = true;
+                                $_SESSION['admin'] = $mail;
+                                $isadmin = true;
 
                                 
-                                setcookie('administrateur', $mail, time() + 90*24*3600, '/', '', false, true);
+                                setcookie('admin', $mail, time() + 90*24*3600, '/', '', false, true);
                                 setcookie('adminmdp', $mdp, time() + 90*24*3600, '/', '', false, true);
-                                echo "Connexion admin réussie. " . htmlspecialchars($mail);
+                                
+                                //echo "Connexion admin réussie. " . htmlspecialchars($mail);
+                                if (!isset($_GET['reloaded'])) {
+                                    echo "<script>window.location.href = window.location.href + '?reloaded=1';</script>";
+                                }
                                 // Tu peux stocker $isadmin aussi si nécessaire :
                                 // $_SESSION['admin'] = $isadmin;
-                            }else if ($isadmin == FALSE){
+                            }else if ($isadministrateur == FALSE){
                                 
                                 $connecte = true;
-                                $admin = false;
+                                $isadmin = false;
                                 $_SESSION['utilisateur'] = $mail;
 
                                 setcookie('mailuser', $mail, time() + 90*24*3600, '/', '', false, true);
                                 setcookie('mdpuser', $mdp, time() + 90*24*3600, '/', '', false, true);
-                                echo "Connexion réussie. " . htmlspecialchars($isadmin);
+                                //echo "Connexion réussie. " . htmlspecialchars($isadministrateur);
+                                if (!isset($_GET['reloaded'])) {
+                                echo "<script>window.location.href = window.location.href + '?reloaded=1';</script>";
+                            }
+                                  
+
                                 // Tu peux stocker $isadmin aussi si nécessaire :
                                 // $_SESSION['admin'] = $isadmin;
                             }
