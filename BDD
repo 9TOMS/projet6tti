@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1:3306
--- Généré le : ven. 06 juin 2025 à 06:37
+-- Généré le : ven. 13 juin 2025 à 08:10
 -- Version du serveur : 8.3.0
 -- Version de PHP : 8.2.18
 
@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS `commentaires_news` (
   `Id_Commentaire` int NOT NULL AUTO_INCREMENT,
   `Id_News` int NOT NULL,
   `Id_Membre` int NOT NULL,
-  `Contenu_Commentaire` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Contenu_Commentaire` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `Date_Commentaire` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`Id_Commentaire`)
 ) ENGINE=InnoDB AUTO_INCREMENT=129 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -88,20 +88,15 @@ DROP TABLE IF EXISTS `evenements`;
 CREATE TABLE IF NOT EXISTS `evenements` (
   `id` int NOT NULL AUTO_INCREMENT,
   `date` date NOT NULL,
-  `heure` varchar(5) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `nom` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `heure` varchar(5) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nom` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `heure_debut` time DEFAULT NULL,
+  `heure_fin` time DEFAULT NULL,
+  `date_debut` date DEFAULT NULL,
+  `date_fin` date DEFAULT NULL,
+  `max_participants` int NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Déchargement des données de la table `evenements`
---
-
-INSERT INTO `evenements` (`id`, `date`, `heure`, `nom`) VALUES
-(16, '2025-06-30', '16:00', 'BALADES'),
-(2, '2025-06-30', '16:00', 'BALADES'),
-(18, '2025-06-23', '11:00', 'TEST DDDD'),
-(15, '2025-06-23', '14:00', 'COURS');
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -113,28 +108,23 @@ DROP TABLE IF EXISTS `inscriptions`;
 CREATE TABLE IF NOT EXISTS `inscriptions` (
   `id` int NOT NULL AUTO_INCREMENT,
   `evenement_id` int NOT NULL,
-  `nom` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `prenom` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `tel` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nom` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `prenom` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tel` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `nombre_participants` int DEFAULT '1',
   `date_inscription` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Déchargement des données de la table `inscriptions`
 --
 
 INSERT INTO `inscriptions` (`id`, `evenement_id`, `nom`, `prenom`, `email`, `tel`, `nombre_participants`, `date_inscription`) VALUES
-(1, 10, 'Schrobiltgen', 'Tom', 'tomschrob@g', '047', 2, '2025-06-04 18:57:14'),
-(2, 10, 'Schrobiltgen', 'Tom', 'tomschrobi@gmail.com', '0473236327', 1, '2025-06-04 18:59:50'),
-(3, 1, 'Schrobiltgen', 'Tom', 'tomschrobi@gmail.com', '0473236327', 1, '2025-06-04 19:00:57'),
-(4, 1, 'Schrobiltgen', 'Tom', 'tomschrobi@gmail.com', '0473236327', 1, '2025-06-04 19:09:55'),
-(5, 1, 'Schrobiltgen', 'Tom', 'tomschrobi@gmail.com', '0473236327', 1, '2025-06-04 21:04:59'),
-(6, 15, 'Schrobiltgen', 'Tom', 'tomschrobi@gmail.com', '0473236327', 3, '2025-06-05 09:18:13'),
-(7, 15, 'Schrobiltgen', 'Tom', 'tomschrobi@gmail.com', '0473236327', 4, '2025-06-05 09:21:18'),
-(8, 15, 'Schrobiltgen', 'Tom', 'tomschrobi@gmail.com', '0473236327', 1, '2025-06-05 13:16:08');
+(1, 5, 'Schrobiltgen', 'Tom', 'tomschrobi@gmail.com', '0473236327', 1, '2025-06-12 16:37:31'),
+(2, 4, 'Schrobiltgen', 'Tom', 'tomschrobi@gmail.com', '0473236327', 1, '2025-06-12 16:37:38'),
+(3, 6, 'Schrobiltgen', 'Tom', 'tomschrobi@gmail.com', '0473236327', 1, '2025-06-12 16:37:43');
 
 -- --------------------------------------------------------
 
@@ -187,14 +177,17 @@ CREATE TABLE IF NOT EXISTS `membre` (
 -- --------------------------------------------------------
 
 --
+-- Structure de la table `news`
 --
-CREATE TABLE `news` (
-  `Id_News` int(11) NOT NULL,
-  `Info_News` text NOT NULL,
-  `Photo_News` text NOT NULL,
+
+DROP TABLE IF EXISTS `news`;
+CREATE TABLE IF NOT EXISTS `news` (
+  `Id_News` int NOT NULL,
+  `Info_News` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Photo_News` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `Date_News` date NOT NULL,
-  `Nombre_Likes` int(11) NOT NULL,
-  `Media_Type` varchar(20) DEFAULT 'google_slides'
+  `Nombre_Likes` int NOT NULL,
+  `Media_Type` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT 'google_slides'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -235,7 +228,7 @@ CREATE TABLE IF NOT EXISTS `note` (
 DROP TABLE IF EXISTS `parent_photo`;
 CREATE TABLE IF NOT EXISTS `parent_photo` (
   `id_parent` int NOT NULL AUTO_INCREMENT,
-  `parent_nom` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `parent_nom` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id_parent`)
 ) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
