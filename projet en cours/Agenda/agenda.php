@@ -1,5 +1,28 @@
  <?php
+
+
+session_start();
+$isadmin = isset($_SESSION['admin']);
 $bdd = mysqli_connect('localhost', 'root', '', 'crepuscule');
+$today = date('Y-m-d');
+
+mysqli_query($bdd, "DELETE FROM inscriptions WHERE evenement_id IN (
+    SELECT id FROM evenements WHERE date < '$today'
+)");
+
+// Puis supprimer les événements passés
+mysqli_query($bdd, "DELETE FROM evenements WHERE date < '$today'");
+
+if ((isset($_COOKIE['admin'])) && ($_COOKIE['admin'] == true)) {
+    $isadmin = true;
+
+    
+} else {
+    $isadmin = false;
+ 
+}
+
+
 mysqli_set_charset($bdd, "utf8");
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'inscription') {
     $evenement_id = intval($_POST['evenement_id']);
@@ -133,6 +156,9 @@ if (isset($_GET['api']) && $_GET['api'] === 'inscrits' && isset($_GET['evenement
 
 <!DOCTYPE html>
 <html lang="fr">
+    <script>
+    const isAdmin = <?= $isadmin ? 'true' : 'false' ?>;
+</script>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact</title>
@@ -362,7 +388,7 @@ if (isset($_GET['api']) && $_GET['api'] === 'inscrits' && isset($_GET['evenement
     <?php include("pied_de_page.php"); ?>
 </footer>
 <script>
-const isAdmin = true;
+
 
 const jourTitre = document.getElementById("jour-titre");
 
@@ -616,7 +642,7 @@ async function afficherAgendaFinal() {
         titreJour.appendChild(h4);
 
         titreJour.addEventListener("click", () => {
-       if (isAdmin) {
+       if (isadmin) {
     ouvrirFormulaireCreation(dateStr, "08:00"); // 08:00 par défaut
 } else {
     ouvrirFormulaireInscription(dateStr);
@@ -652,7 +678,7 @@ const spanNom = document.createElement("span");
 spanNom.textContent = texte;
 eventDiv.appendChild(spanNom);
 
-if (isAdmin) {
+if (isadmin) {
     // === Bouton Voir inscrits ===
     const btnVoir = document.createElement("button");
     btnVoir.textContent = "👁️";
