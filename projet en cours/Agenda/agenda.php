@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $tel = mysqli_real_escape_string($bdd, $_POST['tel']);
     $nombre = intval($_POST['number']);
 
-    // ✅ Vérifier le quota
+    // Vérifier le quota
     // Récupérer le nombre total de personnes déjà inscrites
     $resTotal = mysqli_query($bdd, "SELECT SUM(nombre_participants) AS total FROM inscriptions WHERE evenement_id = $evenement_id");
     $rowTotal = mysqli_fetch_assoc($resTotal);
@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         exit;
     }
 
-    // ✅ Si ok, on insère
+    // Si ok, on insère
     $query = "INSERT INTO inscriptions (evenement_id, nom, prenom, email, tel, nombre_participants)
               VALUES ($evenement_id, '$nom', '$prenom', '$email', '$tel', $nombre)";
     
@@ -67,23 +67,23 @@ if (isset($_GET['api']) && $_GET['api'] === 'evenements') {
         $date = mysqli_real_escape_string($bdd, $input['date']);
         $heure = mysqli_real_escape_string($bdd, $input['heure']);
         $nom = mysqli_real_escape_string($bdd, $input['nom']);
-            $heure_debut = isset($input['heure_debut']) ? mysqli_real_escape_string($bdd, $input['heure_debut']) : null;
-    $heure_fin = isset($input['heure_fin']) ? mysqli_real_escape_string($bdd, $input['heure_fin']) : null;
-    $date_debut = isset($input['date_debut']) ? mysqli_real_escape_string($bdd, $input['date_debut']) : null;
-    $date_fin = isset($input['date_fin']) ? mysqli_real_escape_string($bdd, $input['date_fin']) : null;
+        $heure_debut = isset($input['heure_debut']) ? mysqli_real_escape_string($bdd, $input['heure_debut']) : null;
+        $heure_fin = isset($input['heure_fin']) ? mysqli_real_escape_string($bdd, $input['heure_fin']) : null;
+        $date_debut = isset($input['date_debut']) ? mysqli_real_escape_string($bdd, $input['date_debut']) : null;
+        $date_fin = isset($input['date_fin']) ? mysqli_real_escape_string($bdd, $input['date_fin']) : null;
        $max_participants = isset($input['max_participants']) ? intval($input['max_participants']) : 0;
 
-$query = "INSERT INTO evenements (date, heure, nom, heure_debut, heure_fin, date_debut, date_fin, max_participants)
-VALUES (
-    '$date',
-    '$heure',
-    '$nom',
-    " . ($heure_debut ? "'$heure_debut'" : "NULL") . ",
-    " . ($heure_fin ? "'$heure_fin'" : "NULL") . ",
-    " . ($date_debut ? "'$date_debut'" : "NULL") . ",
-    " . ($date_fin ? "'$date_fin'" : "NULL") . ",
-    $max_participants
-)";
+        $query = "INSERT INTO evenements (date, heure, nom, heure_debut, heure_fin, date_debut, date_fin, max_participants)
+        VALUES (
+            '$date',
+            '$heure',
+            '$nom',
+            " . ($heure_debut ? "'$heure_debut'" : "NULL") . ",
+            " . ($heure_fin ? "'$heure_fin'" : "NULL") . ",
+            " . ($date_debut ? "'$date_debut'" : "NULL") . ",
+            " . ($date_fin ? "'$date_fin'" : "NULL") . ",
+            $max_participants
+        )";
 
 
 
@@ -95,7 +95,7 @@ VALUES (
         }
         exit;
     }
-        if ($method === 'DELETE') {
+    if ($method === 'DELETE') {
         $input = json_decode(file_get_contents('php://input'), true);
         $id = intval($input['id']);
         $query = "DELETE FROM evenements WHERE id = $id";
@@ -344,11 +344,7 @@ if (isset($_GET['api']) && $_GET['api'] === 'inscrits' && isset($_GET['evenement
         overflow: auto;
     }
 }
-
-
-
-
-    </style>
+</style>
 </head>
 <body>
 <?php include("entete.php"); ?>
@@ -356,8 +352,6 @@ if (isset($_GET['api']) && $_GET['api'] === 'inscrits' && isset($_GET['evenement
     <?php include("menu.php"); ?>
     <main >
         <div id="agenda-custom">
-
-
             <div class="agenda-final" id="agenda-final">
                 <div id="agenda-final-contenu" class="agenda-mois"></div>
             </div>
@@ -367,9 +361,7 @@ if (isset($_GET['api']) && $_GET['api'] === 'inscrits' && isset($_GET['evenement
 <footer>
     <?php include("pied_de_page.php"); ?>
 </footer>
-
 <script>
-
 const isAdmin = true;
 
 const jourTitre = document.getElementById("jour-titre");
@@ -525,6 +517,20 @@ function ouvrirFormulaireCreation(dateStr, heure = "08:00") {
 
         document.body.removeChild(confirmation);
     };
+    const boutonFermer = document.createElement("button");
+boutonFermer.textContent = "Fermer";
+boutonFermer.style.marginTop = "10px";
+boutonFermer.style.marginLeft = "10px";
+boutonFermer.style.padding = "5px 10px";
+boutonFermer.style.backgroundColor = "gray";
+boutonFermer.style.color = "white";
+boutonFermer.style.border = "none";
+boutonFermer.style.borderRadius = "5px";
+boutonFermer.style.cursor = "pointer";
+
+boutonFermer.onclick = () => {
+    document.body.removeChild(confirmation);
+};
 
     confirmation.appendChild(inputNom);
     confirmation.appendChild(inputMax);
@@ -534,7 +540,14 @@ function ouvrirFormulaireCreation(dateStr, heure = "08:00") {
     confirmation.appendChild(lblDate);
     confirmation.appendChild(inputDateDebut);
     confirmation.appendChild(inputDateFin);
-    confirmation.appendChild(boutonValider);
+   const boutonContainer = document.createElement("div");
+boutonContainer.style.display = "flex";
+boutonContainer.style.justifyContent = "space-between";
+boutonContainer.style.marginTop = "15px";
+boutonContainer.appendChild(boutonValider);
+boutonContainer.appendChild(boutonFermer);
+
+confirmation.appendChild(boutonContainer);
 
     document.body.appendChild(confirmation);
 }
