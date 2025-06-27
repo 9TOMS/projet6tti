@@ -1,0 +1,41 @@
+:root{
+    --color_fond:beige;
+    --color_fond_cadre:lightgray;
+    --color_text:blue;
+    --taille_text:40px;
+    --couleur:blue;
+    --bordure:0px solid var(--couleur);
+    --couleur2_fond:lightgray;
+}
+body{
+    background-color: var(--color_fond);
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+#entete,#pied{
+    border: blue solid 15px;
+    background-color: var(--color_fond_cadre);
+    width: 60%;
+    text-align: center;
+    font-size: var(--taille_text);
+    color: var(--color_text);
+    margin-top:2.5%;
+    margin-bottom:2.5%;
+    height:150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#text2{
+    border: var(--bordure);
+    width: 100%;
+}
+#text1{
+    background-color: var(--couleur2_fond);
+    width: 100%;
+}
+
+.heure_actuelle{
+    display: flex;
+}
